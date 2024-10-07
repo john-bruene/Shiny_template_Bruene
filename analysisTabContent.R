@@ -1,4 +1,4 @@
-analysisTabContent <- tabPanel("Analyse", value = "analysis",
+analysisTabContent <- tabPanel("Analyse", value = 4,
                                                  tabsetPanel(
                                                    tabPanel(
                                                      "Erklärung Methoden",

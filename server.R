@@ -2544,5 +2544,18 @@ server <- function(input, output, session) {
 
   })
   
+  # Überwachung des Tabwechsels
+  observeEvent(input$tabs, {
+    # Überprüfen, ob im Clusteranalyse-Tab oder im Tab 2 (politische Optionen)
+    if (input$tabs == 4) { # Clusteranalyse-Tab
+      shinyjs::show("clusterOptions")
+    } else if (input$tabs == 3) { # Tab 2 für politische Optionen
+      shinyjs::show("poliOptions") # Hier sollte poliOptions sichtbar sein
+    } else {
+      shinyjs::hide("clusterOptions")
+      shinyjs::hide("poliOptions") # Versteckt poliOptions, wenn nicht in Tab 2
+    }
+  })
+  
 }
 

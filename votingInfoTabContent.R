@@ -1,4 +1,4 @@
-votingInfoTabContent <- tabPanel("Infos zur Abstimmung",
+votingInfoTabContent <- tabPanel("Infos zur Abstimmung", value = 3,
                                  tabsetPanel(
                                    tabPanel("Allgemein",
                                             br(),

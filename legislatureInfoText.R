@@ -16,10 +16,10 @@ legislatureInfoText <- HTML("
 legislatureInfo <- list(
   "1" = list(
     jahre = "2021-2025",
-    text = "<p>Diese Legislaturperiode umfasst die Jahre 2021 bis 2025. In dieser Zeit wurden wichtige Gesetze in Bereichen wie Umweltschutz, digitale Infrastruktur und soziale Gerechtigkeit erlassen.</p>",
-    abgeordnete = 709,
-    parteien = 6,
-    koalitionen = "Große Koalition zwischen CDU/CSU und SPD"
+    text = "<p>Diese Legislaturperiode umfasst die Jahre 2021 bis 2025. In dieser Zeit wurden wichtige Gesetze in Bereichen wie Klimaschutz, Digitalisierung, und soziale Gerechtigkeit erlassen. Die Bundesregierung hat auch Maßnahmen zur Bewältigung der COVID-19-Pandemie und zur Förderung nachhaltiger Entwicklung eingeführt.</p>",
+    abgeordnete = 736,  
+    parteien = 9,      
+    koalitionen = "Ampelkoalition zwischen SPD, Grünen und FDP"
   ),
   "2" = list(
     jahre = "2017-2021",

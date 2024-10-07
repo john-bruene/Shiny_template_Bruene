@@ -30,7 +30,7 @@ ui <- fluidPage(
       
       # Output: tabsetPanel only needed for several tabs
       tabsetPanel(type = "tabs", id = "tabs",
-                  tabPanel("Willkommen", value = 1, br(), HTML(introText)),
+#                  tabPanel("Willkommen", value = 1, br(), HTML(introText)),
             
                   legislatureInfoTabContent, # Verwendung des 2. ausgelagerten Inhalts
 
