@@ -13,6 +13,7 @@ load("politicalSystemText.RData")
 # Define UI for random distribution app ----
 ui <- fluidPage(
   includeCSS("style.css"),
+  theme = bs_theme(version = 4),
   useShinyjs(),
   
   # App title ----

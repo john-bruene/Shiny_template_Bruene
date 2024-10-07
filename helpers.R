@@ -24,7 +24,7 @@ library(cluster)
 library(caret)
 library(slickR)
 library(dendextend)
-library(ggtree)
+#library(ggtree)
 library(ggdendro)
 library(mclust)
 library(shinyjs)
@@ -33,6 +33,7 @@ library(rlang)
 library(wnominate)
 library(e1071)
 library(fmsb)
+library(ggparliament)
 
 
 options(spinner.color="#153268", spinner.color.background="#ffffff", spinner.size=2)
@@ -43,16 +44,16 @@ options(spinner.color="#153268", spinner.color.background="#ffffff", spinner.siz
 
     # Benutzerdefinierte Farbpalette für Parteien
 get_color <- function(party) {
-  party_colors <- c("CDU" = "black", 
-                    "SPD" = "red", 
+  party_colors <- c("CDU" = "#1a1a1a", 
+                    "SPD" = "#cd1b01", 
                     "FDP" = "yellow", 
-                    "Bündnis 90/Die Grünen" = "green",
-                    "BÜNDNIS 90/DIE GRÜNEN" = "green",
-                    "DIE GRÜNEN" = "green",
-                    "Die Linke." = "purple", 
-                    "DIE LINKE" = "purple",
-                    "BSW" = "purple",
-                    "AfD" = "blue", 
+                    "Bündnis 90/Die Grünen" = "#2bd800",
+                    "BÜNDNIS 90/DIE GRÜNEN" = "#2bd800",
+                    "DIE GRÜNEN" = "#2bd800",
+                    "Die Linke." = "#b52269", 
+                    "DIE LINKE" = "#b52269",
+                    "BSW" = "#650164",
+                    "AfD" = "#01d1ff", 
                     "CSU" = "darkblue",
                     "FREIE WÄHLER" = "orange",
                     "Die PARTEI" = "pink",

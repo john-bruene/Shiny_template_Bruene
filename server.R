@@ -2454,5 +2454,95 @@ server <- function(input, output, session) {
     HTML(infoContent)
   })
   
+  ###############################################
+  
+  
+#### Parliament Plot ######
+
+  
+  # Rendern des Plots in der Shiny-App
+  output$parliamentPlot <- renderPlotly({
+    
+    
+    # Lade die Daten
+    data <- dat_react()
+    
+    # Wende die Farben an und konvertiere in tibble
+    party_colors <- get_color()
+    
+    # Konvertiere Farben in einen tibble
+    color_data <- as_tibble(party_colors, rownames = "party.label")
+    colnames(color_data) <- c("party_name_short", "colour")
+    
+    # Links-Rechts-Reihenfolge für die deutschen Parteien
+    left_right_order <- c(
+      "Die Linke." = 2,
+      "DIE LINKE" = 2,
+      "BSW" = 1,
+      "SPD" = 3,
+      "Bündnis 90/Die Grünen" = 4,
+      "BÜNDNIS 90/DIE GRÜNEN" = 4,
+      "DIE GRÜNEN" = 4,
+      "Volt" = 4,
+      "FDP" = 5,
+      "FREIE WÄHLER" = 6,
+      "SSW" = 6,
+      "CDU" = 7,
+      "CSU" = 8,
+      "CDU/CSU" = 8,
+      "Union (CDU/CSU)" = 8,
+      "AfD" = 9,
+      "Fraktionslos" = 10,
+      "fraktionslos" = 10,
+      "parteilos" = 10
+    )
+    
+    # Wähle und formatiere die election_data Daten
+    election_data <- data %>%
+      select("party.label", "label.x") %>%
+      mutate(seats = 1, seats_total = nrow(data), left_right = left_right_order[party.label]) %>%
+      rename(party_name_short = party.label, member_name = label.x) %>%
+      mutate(left_right = factor(left_right, levels = 1:8))
+    
+    # Anzahl der Sitze und Zeilen bestimmen
+    seats_election <- election_data %>% distinct(seats_total) %>% pull()
+    parl_rows_df <- tibble(seats = seq(0, 700, 100), parl_rows = seq(5, 12, 1))
+    parl_rows_nr <- parl_rows_df %>% filter(seats < seats_election) %>% filter(parl_rows == max(parl_rows)) %>% pull(parl_rows)
+    
+    # Anordnung nach Links-Rechts-Position
+    election_lr_arranged <- election_data %>%
+      arrange(left_right) %>%
+      mutate(
+        cum_seats = cumsum(seats),
+        seat_share = seats / seats_total * 100,
+        seat_share_label = paste0(round(seat_share, 1), "%"),
+        cum_seats_position = if_else(cum_seats == min(cum_seats), cum_seats / 2, lag(cum_seats) + (seats / 2)),
+        full_label = paste0(seats, " Seats (", seat_share_label, ")")
+      )
+    
+    # Parlamentsdaten erstellen
+    election_parliament <- parliament_data(
+      election_data = election_lr_arranged,  
+      parl_rows = parl_rows_nr,
+      type = 'semicircle',
+      party_seats = election_lr_arranged$seats
+    ) %>%
+      mutate(member_name = election_data$member_name) %>%
+      left_join(color_data, by = "party_name_short")
+    
+    # Parlamentsplot erstellen
+    seats_parl <- ggplot(election_parliament, 
+                         aes(x, y, color = party_name_short, text = paste("Member:", member_name, "<br>Party:", party_name_short))) +
+      geom_parliament_seats() +
+      theme_ggparliament(legend = FALSE) +
+      theme(legend.position = "bottom") +
+      guides(color = guide_legend(nrow = 2)) +
+      scale_color_manual("Party", values = setNames(color_data$colour, color_data$party_name_short))
+    
+    # Interaktiver Plot mit Plotly
+    ggplotly(seats_parl, tooltip = "text")
+
+  })
   
 }
+

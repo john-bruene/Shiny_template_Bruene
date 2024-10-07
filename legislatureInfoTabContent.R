@@ -4,6 +4,8 @@ legislatureInfoTabContent <- tabPanel("Infos zur Legislatur", value = 1,
                                                  br(),
                                                  uiOutput("dynamicInfoText"),
                                                  br(),
+                                                 plotlyOutput("parliamentPlot"),
+                                                 br(),
                                                  HTML("<h3>Tabelle: Anzahl Gesetze pro Themenbereich</h3>"),
                                                  actionButton("toggleTable", "Tabelle ein-/ausklappen"),
                                                  shinyjs::hidden(
@@ -14,19 +16,14 @@ legislatureInfoTabContent <- tabPanel("Infos zur Legislatur", value = 1,
                                                  withSpinner(plotlyOutput("histogram7"), type = 3)
                                         ),
                                         tabPanel("Politisches Koordinatensystem",
-                                                 tabsetPanel(
                                                    tabPanel("Erklärung - Voreingestellt",
                                                             br(),
                                                             HTML(politicalSystemText),  # Annahme, dass du bereits eine Variable `politicalSystemText` definiert hast
                                                             br(),
                                                             plotlyOutput("koordinatensystem2")
-                                                   ),
-                                                   tabPanel("Anpassbares Koordinatensystem (Experimentell)",
-                                                            br(),
-                                                            plotlyOutput("koordinatensystem3")
                                                    )
                                                  )
-                                        )
+                                        
                                       )
 )
 
