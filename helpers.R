@@ -1,5 +1,6 @@
 # call all the necessary packages
 library(shiny)
+library(bslib)
 library(DT)
 library(plotly)
 library(shinyBS)
@@ -26,6 +27,13 @@ library(dendextend)
 library(ggtree)
 library(ggdendro)
 library(mclust)
+library(shinyjs)
+library(RColorBrewer) 
+library(rlang)
+library(wnominate)
+library(e1071)
+library(fmsb)
+
 
 options(spinner.color="#153268", spinner.color.background="#ffffff", spinner.size=2)
 
@@ -38,7 +46,10 @@ get_color <- function(party) {
   party_colors <- c("CDU" = "black", 
                     "SPD" = "red", 
                     "FDP" = "yellow", 
-                    "Bündnis 90/Die Grünen" = "green", 
+                    "Bündnis 90/Die Grünen" = "green",
+                    "BÜNDNIS 90/DIE GRÜNEN" = "green",
+                    "DIE GRÜNEN" = "green",
+                    "Die Linke." = "purple", 
                     "DIE LINKE" = "purple",
                     "BSW" = "purple",
                     "AfD" = "blue", 
@@ -53,7 +64,9 @@ get_color <- function(party) {
                     "Volt" = "purple",
                     "SSW" = "orange",
                     "Fraktionslos" = "grey",
+                    "fraktionslos" = "grey",
                     "parteilos" = "grey",
+                    "CDU/CSU" = "black",
                     "Union (CDU/CSU)" = "black")
   
   return(party_colors[party])

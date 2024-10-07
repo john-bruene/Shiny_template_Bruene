@@ -19,26 +19,32 @@ server <- function(input, output, session) {
   
   # adjust the template from here on
   # loading the data
-  politician_data2125 <- read.csv("all_politicians_bt_21_25.csv")
-  politician_data1721 <- read.csv("all_politicians_bt_17_21.csv")
-  politician_data1317 <- read.csv("all_politicians_bt_13_17.csv")
-  politician_data0913 <- read.csv("all_politicians_bt_09_13.csv")
-  votes_2125_df<- read_csv("all_votes_data_2125_df.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
-  votes_1721_df<- read_csv("all_votes_data_1721_df.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
-  votes_1317_df<- read_csv("all_votes_data_1317_df.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
-  votes_0913_df<- read_csv("all_votes_data_0913_df.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
-  polls_2125_df<- read.csv("all__poll_2125_df.csv")
-  polls_1721_df<- read.csv("all__poll_1721_df.csv")
-  polls_1317_df<- read.csv("all__poll_1317_df.csv")
-  polls_0913_df<- read.csv("all__poll_0913_df.csv")
+  politician_data2125 <- read.csv("all_politicians_bt_21_25_new.csv")
+  politician_data1721 <- read.csv("all_politicians_bt_17_21_new.csv")
+  politician_data1317 <- read.csv("all_politicians_bt_13_17_new.csv")
+  politician_data0913 <- read.csv("all_politicians_bt_09_13_new.csv")
+  votes_2125_df<- read_csv("all_votes_data_2125_df_new.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
+  votes_1721_df<- read_csv("all_votes_data_1721_df_new.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
+  votes_1317_df<- read_csv("all_votes_data_1317_df_new.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
+  votes_0913_df<- read_csv("all_votes_data_0913_df_new.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
+  polls_2125_df<- read.csv("all__poll_2125_df_new.csv")
+  polls_1721_df<- read.csv("all__poll_1721_df_new.csv")
+  polls_1317_df<- read.csv("all__poll_1317_df_new.csv")
+  polls_0913_df<- read.csv("all__poll_0913_df_new.csv")
   
   votes_2125_df <- left_join(votes_2125_df, polls_2125_df, by = "poll.id")
   votes_1721_df <- left_join(votes_1721_df, polls_1721_df, by = "poll.id")
   votes_1317_df <- left_join(votes_1317_df, polls_1317_df, by = "poll.id")
   votes_0913_df <- left_join(votes_0913_df, polls_0913_df, by = "poll.id")
   
+  wahlkreise21 <- st_read("btw21_geometrie_wahlkreise_shp/Geometrie_Wahlkreise_20DBT.shp")
+  wahlkreise17 <- st_read("btw17_geometrie_wahlkreise_geo_shp/Geometrie_Wahlkreise_19DBT_geo.shp")
+  wahlkreise13 <- st_read("btw13_geometrie_wahlkreise_etrs89_geo_shp/Geometrie_Wahlkreise_18DBT.shp")
+  wahlkreise09 <- st_read("btw09_geometrie_wahlkreise_shp/Geometrie_Wahlkreise_17DBT.shp")
   
+  current_year <- format(Sys.Date(), "%Y")
 
+  
 
   
   #reactive part
@@ -48,15 +54,19 @@ server <- function(input, output, session) {
     if (input$data == 1) {
       politician_data <- politician_data2125
       votes_df <- votes_2125_df
+      wahlkreise <- wahlkreise21
     } else if (input$data == 2) {
       politician_data <- politician_data1721
       votes_df <- votes_1721_df
+      wahlkreise <- wahlkreise17
     } else if (input$data == 3) {
       politician_data <- politician_data1317
       votes_df <- votes_1317_df
+      wahlkreise <- wahlkreise13
     } else if (input$data == 4) {
       politician_data <- politician_data0913
       votes_df <- votes_0913_df
+      wahlkreise <- wahlkreise09
     }
     
     
@@ -274,7 +284,6 @@ server <- function(input, output, session) {
     
   
     matching_politicians$answered_percentage <- round(ifelse(matching_politicians$statistic_questions == 0 | is.na(matching_politicians$statistic_questions_answered), 0, matching_politicians$statistic_questions_answered / matching_politicians$statistic_questions * 100), 2)
-    current_year <- format(Sys.Date(), "%Y")
     matching_politicians <- matching_politicians %>%
       mutate(age = as.numeric(current_year) - year_of_birth)
     
@@ -295,6 +304,28 @@ server <- function(input, output, session) {
     
 
     return(matching_politicians)
+  })
+  
+  #reactive part
+  wahlkreise_react <- reactive({
+
+    
+    if (input$data == 1) {
+
+      wahlkreise <- wahlkreise21
+    } else if (input$data == 2) {
+
+      wahlkreise <- wahlkreise17
+    } else if (input$data == 3) {
+
+      wahlkreise <- wahlkreise13
+    } else if (input$data == 4) {
+
+      wahlkreise <- wahlkreise09
+    }
+    
+    return(wahlkreise)
+    
   })
   
 
@@ -318,9 +349,9 @@ server <- function(input, output, session) {
   desired_order_reactive <- reactive({
     if (input$data == "1") {
       if(input$checkboxUnion) {
-        return(c("SPD", "Union (CDU/CSU)", "Bündnis 90/Die Grünen", "AfD", "FDP", "DIE LINKE", "SSW", "Fraktionslos", "parteilos"))
+        return(c("SPD", "Union (CDU/CSU)", "Bündnis 90/Die Grünen", "FDP", "AfD", "DIE LINKE", "BSW" ,"SSW", "Fraktionslos", "parteilos"))
       } else {
-        return(c("SPD", "CDU", "Bündnis 90/Die Grünen", "AfD","FDP", "CSU", "DIE LINKE", "SSW", "Fraktionslos", "parteilos"))
+        return(c("SPD", "CDU", "Bündnis 90/Die Grünen", "FDP", "AfD", "CSU", "DIE LINKE", "BSW", "SSW", "Fraktionslos", "parteilos"))
       }
     } else if (input$data == "2") {
       if(input$checkboxUnion) {
@@ -488,6 +519,10 @@ server <- function(input, output, session) {
     
     # rendering table with options
     DT::datatable(ergebnisse_nach_topic, options = list(paging = FALSE, pageLength = nrow(ergebnisse_nach_topic)))
+  })
+  
+  observeEvent(input$toggleTable, {
+    shinyjs::toggle(id = "tableContainer")
   })
   
   
@@ -812,55 +847,69 @@ server <- function(input, output, session) {
   ###############
   
  
-output$histogram5 <- renderPlotly({
-  dat_r <- dat_react()
+  output$histogram5 <- renderPlotly({
+    dat_r <- dat_react()
+    
+    vote_party_counts_sex <- dat_r %>%
+      count(sex, vote) %>%
+      complete(sex, vote, fill = list(n = 0)) %>%
+      mutate(
+        sex = ifelse(sex == "m", "Männer", ifelse(sex == "f", "Frauen", "Unbekannt")),  # Geschlecht umbenennen
+        vote = factor(vote, 
+                      levels = c("yes", "no", "abstain", "no_show"), 
+                      labels = c("Dafür", "Dagegen", "Enthalten", "Nicht beteiligt"))  # Vote umbenennen
+      )
+    
+    my_colors <- c("Dafür" = "#a4d67a", "Dagegen" = "#c76f5e", "Enthalten" = "#e2e2e2", "Nicht beteiligt" = "#a6a6a6")
+    
+    # Create a Plotly plot
+    plot_ly(vote_party_counts_sex, x = ~sex, y = ~n, type = 'bar', color = ~vote, colors = my_colors) %>%
+      layout(
+        title = "Abstimmungsverhalten nach Geschlecht",
+        legend = list(title = "Abstimmung"),
+        xaxis = list(title = "Geschlecht"),
+        yaxis = list(title = "Anzahl")
+      )
+  })
   
-  vote_party_counts_sex <- dat_r %>%
-    count(sex, vote) %>%
-    complete(sex, vote, fill = list(n = 0)) %>%
-    mutate(sex = ifelse(sex == "m", "Männer", ifelse(sex == "f", "Frauen", "Unbekannt")))  # Geschlecht umbenennen
-
-  my_colors <- c("yes" = "#a4d67a", "no" = "#c76f5e", "abstain" = "#e2e2e2", "no_show" = "#a6a6a6")
-  
-  # Create a Plotly plot
-  plot_ly(vote_party_counts_sex, x = ~sex, y = ~n, type = 'bar', color = ~vote, colors = my_colors) %>%
-    layout(
-      title = "Abstimmungsverhalten nach Geschlecht",
-      legend = list(title = "Geschlecht"),
-      xaxis = list(title = "Geschlecht"),
-      yaxis = list(title = "Anzahl")
-    )
-})
   
   #########################################
   
   
-
   output$abstimmungsergebnis <- renderPlotly({
     dat_r <- dat_react()  
     
     vote_counts <- dat_r %>%
       count(vote) %>%
       mutate(Prozent = n / sum(n) * 100,  
-             CumCount = cumsum(n))        
+             CumCount = cumsum(n))
     
-    vote_counts$vote <- factor(vote_counts$vote, levels = rev(unique(vote_counts$vote)))
+    # Umbenennen und Reihenfolge der Levels umkehren
+    vote_counts$vote <- factor(vote_counts$vote, 
+                               levels = rev(c("yes", "no", "no_show", "abstain")),
+                               labels = rev(c("Dafür", "Dagegen", "Nicht beteiligt", "Enthalten")))
     
-    # stacked bar plot
+    # Sortieren der Daten nach den neuen Levels
+    vote_counts <- vote_counts %>% arrange(factor(vote, levels = rev(c("Dafür", "Dagegen", "Enthalten", "Nicht beteiligt"))))
+    
+    # Stacked bar plot
     p <- ggplot(vote_counts, aes(x = "", y = n, fill = vote)) +
       geom_bar(stat = "identity", width = 0.6) +
-      coord_flip() +  # horizontal
-      scale_fill_manual(values = c("yes" = "#a4d67a", "no" = "#c76f5e", "abstain" = "#e2e2e2", "no_show" = "#a6a6a6")) +
-      theme(legend.position = "none") +  
+      coord_flip() +  # Horizontal
+      scale_fill_manual(values = c("Dafür" = "#a4d67a", "Dagegen" = "#c76f5e", "Enthalten" = "#e2e2e2", "Nicht beteiligt" = "#a6a6a6")) +
       geom_text(aes(y = CumCount - 0.5 * n, label = paste(sprintf("%.1f%%", Prozent))), hjust = 0.5, size = 3.5, check_overlap = TRUE) +
-      labs(title = 'Abstimmungsverhalten (gesamt)', x = NULL, y = "Anzahl der Stimmen") +
+      labs(title = 'Abstimmungsverhalten (gesamt)', x = NULL, y = "Anzahl der Stimmen", fill = "Abstimmung") +
       theme_minimal() +
       theme(axis.text.y = element_blank(),
-            axis.ticks.y = element_blank())
+            axis.ticks.y = element_blank(),
+            legend.position = "left")  # Position der Legende links setzen
     
-    # convert to plotly
+    # Convert to plotly
     ggplotly(p)
   })
+  
+  
+  
   
     
   # HTML-Text
@@ -878,8 +927,6 @@ output$histogram5 <- renderPlotly({
 
   
   # Leaflet map
-  
-  library(leaflet)
   
   output$leaflet_map <- renderLeaflet({
     dat_r <- dat_react()
@@ -907,6 +954,72 @@ output$histogram5 <- renderPlotly({
       ))
   })
   
+  ############################
+
+  output$leaflet_map1 <- renderLeaflet({
+    
+    wahlkreise <- wahlkreise_react()
+    
+    # Transformation der Koordinaten in das geografische Koordinatensystem (Längen- und Breitengrad)
+    wahlkreise <- st_transform(wahlkreise, crs = 4326)
+    
+    location_data <- dat_react()
+    
+    # Erstelle eine neue Spalte "WKN_NR" 
+    location_data$WKR_NR <- str_extract(location_data$electoral_data_constituency.label, "\\d{1,3}(?= - )")
+    
+    location_data$WKR_NR <- as.numeric(location_data$WKR_NR)
+    # Merge der Tabellen location_data und wahlkreise über die Spalte "WKR_NR"
+    merged_data <- merge(location_data, wahlkreise[, c("WKR_NR","WKR_NAME", "geometry")], by = "WKR_NR", all.x = TRUE)
+    
+    # Sicherstellen, dass location_data ein sf-Objekt ist
+    if (!inherits(merged_data, "sf")) {
+      merged_data <- st_as_sf(merged_data, crs = 4326)
+    }
+    
+    location_data <- merged_data
+    location_data <- location_data %>% filter(electoral_data_mandate_won == "constituency")
+    
+    # Überprüfung auf fehlende Wahlkreise
+    all_wkr <- 1:299
+    missing_wkr <- setdiff(all_wkr, location_data$WKR_NR)
+    
+    if (length(missing_wkr) > 0) {
+      additional_data <- merged_data %>% filter(WKR_NR %in% missing_wkr)
+      location_data <- bind_rows(location_data, additional_data)
+    }
+    
+    location_data$name <- location_data$label.x
+    
+    # Umbenennen der `vote`-Werte
+    location_data$vote_de <- case_when(
+      location_data$vote == "yes" ~ "Dafür gestimmt",
+      location_data$vote == "no" ~ "Dagegen gestimmt",
+      location_data$vote == "abstain" ~ "Enthalten",
+      location_data$vote == "no_show" ~ "Nicht beteiligt"
+    )
+    
+    # Neue Farbzuordnung basierend auf den deutschen Labels
+    myColors_1 <- c("Dafür gestimmt" = "#a4d67a", "Dagegen gestimmt" = "#c76f5e", "Enthalten" = "#e2e2e2", "Nicht beteiligt" = "#7c7b7d")
+    pal <- colorFactor(myColors_1, domain = location_data$vote_de)
+    
+    # Erstellen der Leaflet-Karte
+    leaflet() %>%
+      addTiles() %>%
+      setView(lng = 10, lat = 51.5, zoom = 6) %>%
+      addPolygons(data = location_data, 
+                  fillColor = ~pal(location_data$vote_de), 
+                  fillOpacity = 0.9,
+                  color = "black",  # Schwarze Umrandung
+                  weight = 1,       # Dünne Umrandung
+                  popup = paste(
+                    "<strong>", location_data$vote_de, "</strong>: ", 
+                    location_data$name, ", ", 
+                    location_data$party.label, 
+                    "<br><strong>Wahlkreis:</strong> ", location_data$WKR_NAME,
+                    "<br><a href='", location_data$abgeordnetenwatch_url, "' target='_blank'>Profil</a>"
+                  ))
+  })
   
   
   # Filter data based on selections
@@ -924,7 +1037,7 @@ output$histogram5 <- renderPlotly({
   output$histogram6 <- renderPlotly({
     dat_r <- dat_react()
     
-    # dominant vote for each party
+    # Dominante Stimmen für jede Partei
     dominant_votes <- dat_r %>%
       group_by(party.label, vote) %>%
       summarize(count = n()) %>%
@@ -936,7 +1049,7 @@ output$histogram5 <- renderPlotly({
     
     colnames(dominant_votes) <- c("party.label", "party.vote")
     
-    # adding dominant vote
+    # Hinzufügen der dominanten Stimme
     dat_r <- left_join(dat_r, dominant_votes, by = "party.label")
     
     dat_r <- dat_r %>%
@@ -944,6 +1057,19 @@ output$histogram5 <- renderPlotly({
         vote == "no_show" ~ "Nicht beteiligt",
         vote != party.vote ~ "Abweichler",
         TRUE ~ "Fraktionstreu"
+      ),
+      # Umbenennen von vote und party.vote
+      vote_de = case_when(
+        vote == "yes" ~ "Dafür",
+        vote == "no" ~ "Dagegen",
+        vote == "abstain" ~ "Enthalten",
+        vote == "no_show" ~ "Nicht beteiligt"
+      ),
+      party_vote_de = case_when(
+        party.vote == "yes" ~ "Dafür",
+        party.vote == "no" ~ "Dagegen",
+        party.vote == "abstain" ~ "Enthalten",
+        party.vote == "no_show" ~ "Nicht beteiligt"
       ))
     
     # Plotly Boxplot
@@ -952,7 +1078,7 @@ output$histogram5 <- renderPlotly({
                    hoverinfo = "text",
                    text = ~paste("Name: ", first_name, " ", last_name, "<br>",
                                  "Partei: ", party.label, "<br>",
-                                 "Abgestimmt mit: ", vote, "<br>Fraktion hat abgestimmt mit: ", party.vote)) %>%
+                                 "Abgestimmt mit: ", vote_de, "<br>Fraktion hat abgestimmt mit: ", party_vote_de)) %>%
       layout(
         title = "Fraktionsdisziplin vs. Abweichler vs. Nicht Beteiligt",
         xaxis = list(title = "Gruppe"),
@@ -961,6 +1087,34 @@ output$histogram5 <- renderPlotly({
       )
     
     fig
+  })
+  
+  
+  output$anovaResults <- renderPrint({
+    dat_r <- dat_react()
+    
+    # Daten für die ANOVA vorbereiten
+    dominant_votes <- dat_r %>%
+      group_by(party.label, vote) %>%
+      summarize(count = n(), .groups = 'drop') %>%
+      arrange(party.label, desc(count)) %>%
+      group_by(party.label) %>%
+      slice(1) %>%
+      ungroup() %>%
+      select(party.label, vote)
+    
+    colnames(dominant_votes) <- c("party.label", "party.vote")
+    dat_r <- left_join(dat_r, dominant_votes, by = "party.label")
+    dat_r <- dat_r %>%
+      mutate(group = case_when(
+        vote == "no_show" ~ "Nicht beteiligt",
+        vote != party.vote ~ "Abweichler",
+        TRUE ~ "Fraktionstreu"
+      ))
+    
+    # ANOVA durchführen
+    anova_model <- aov(electoral_data_constituency_result ~ group, data = dat_r)
+    summary(anova_model)
   })
   
 
@@ -1103,6 +1257,137 @@ output$histogram5 <- renderPlotly({
   })
   
   
+  #reactive part for polls
+  nom_react <- reactive({
+    
+    if (input$data == 1) {
+      load("wnom_results_2125.RData")
+    } else if (input$data == 2) {
+      load("wnom_results_1721.RData")
+    } else if (input$data == 3) {
+      load("wnom_results_1317.RData")
+    } else if (input$data == 4) {
+      load("wnom_results_0913.RData")
+    } 
+    return(wnom_results)
+  })
+  
+  ############# NOMINATE SCORES #########
+  
+  output$nominate_plot <- renderPlotly({
+    
+    votes_df <- poll_react()
+    
+    wnom_results <- nom_react()
+    
+    party_colors <- get_color()
+    
+    duplicates <- votes_df |>
+      dplyr::summarise(n = dplyr::n(), .by = c(mandate.id, poll.id)) |>
+      dplyr::filter(n > 1L)
+    
+    # remeove duplicates
+    
+    votes_df <- votes_df |>
+      dplyr::distinct(mandate.id, poll.id, .keep_all = TRUE)
+    
+    # Assuming votes_2125_df is your dataframe
+    # Step 1: Pivot the dataframe to get the votes matrix
+    votes_matrix <- votes_df %>%
+      select(mandate.id, poll.id, vote) %>%
+      pivot_wider(names_from = poll.id, values_from = vote, names_prefix = "vote_")
+    
+    
+    # Convert the votes to numeric codes
+    votes_matrix <- votes_matrix %>%
+      mutate(across(starts_with("vote_"), ~ case_when(
+        . == "yes" ~ 1,
+        . == "no" ~ 6,
+        . == "abstain" ~ 9,
+        . == "no_show" ~ 0,
+        is.na(.) ~ 0,  # Treat NA as notInLegis
+        TRUE ~ NA_real_
+      )))
+    
+    # Save the row names as the mandate labels
+    row.names(votes_matrix) <- votes_matrix$mandate.id
+    votes_matrix <- votes_matrix %>% select(-mandate.id)
+    
+    # Convert to matrix
+    votes_matrix <- as.matrix(votes_matrix)
+    
+    specific_vote <- input$selected_variable
+    filtered_votes <- votes_df[votes_df$poll.label == specific_vote, ]
+    
+    vote_ID <- unique(filtered_votes$poll.id)
+    
+    
+    # Specific vote ID to be analyzed
+    specific_vote_id <- paste0("vote_",vote_ID) # Replace with your actual vote ID
+    
+    # Extract the vote data for the specific vote
+    
+    P_rollcall <- votes_matrix
+    vote_data <- P_rollcall[, as.character(specific_vote_id)]
+    
+    # Create a data frame for logistic regression, excluding rows with NAs
+    vote_coords <- data.frame(coord1D = wnom_results$legislators$coord1D, 
+                              coord2D = wnom_results$legislators$coord2D,
+                              Party = as.factor(wnom_results$legislators$party),
+                              vote = as.factor(vote_data))
+    
+    
+    # Remove rows with NA values
+    vote_coords <- na.omit(vote_coords)
+    
+    # Filter out the points with vote == 0
+    vote_coords_filtered <- subset(vote_coords, vote != 0)
+    
+    # Replace 1 by yes, 6 by no and 9 by abstain and change it to factor
+    vote_coords_filtered$vote <- factor(ifelse(vote_coords_filtered$vote == 1, "yes", 
+                                               ifelse(vote_coords_filtered$vote == 6, "no", "abstain")))
+    
+    
+    
+    # Train SVM model
+    svm_model <- svm(vote ~ coord1D + coord2D , data = vote_coords_filtered, kernel = "linear", scale = FALSE)
+    
+    # Create grid for prediction
+    coord1D_range <- seq(min(vote_coords_filtered$coord1D) - 0.5, max(vote_coords_filtered$coord1D) + 0.5, length.out = 100)
+    coord2D_range <- seq(min(vote_coords_filtered$coord2D) - 0.5, max(vote_coords_filtered$coord2D) + 0.5, length.out = 100)
+    
+    contour_data <- expand.grid(coord1D = coord1D_range, coord2D = coord2D_range)
+    
+    # Predict on the contour data
+    contour_data$pred <- predict(svm_model, newdata = contour_data)
+    
+    # Plot with ggplot2 and plotly
+    gg_svm <- ggplot(vote_coords_filtered, aes(x = coord1D, y = coord2D, color = Party)) +
+      geom_point(aes(shape = factor(vote)), size = 1) +  # Größe der Punkte/Shape
+      geom_contour(data = contour_data, aes(z = as.numeric(pred)), breaks = 1.5, color = "blue", size = 1) +
+      scale_color_manual(values = party_colors) +
+      scale_shape_manual(
+        values = c("yes" = 17,  # Dreieck nach oben (gefüllt)
+                   "no" = 4,    # Dreieck nach unten (gefüllt)
+                   "abstain" = 21), # Kreis (gefüllt)
+        labels = c("yes" = "Yes",
+                   "no" = "No",
+                   "abstain" = "Abstain")
+      ) +
+      theme_minimal() +
+      labs(title = paste("NOMINATE Analyse für die Abstimmung:", specific_vote), 
+           x = "DW-NOMINATE Dimension 1", 
+           y = "DW-NOMINATE Dimension 2",
+           shape = "Casted Vote") +
+      theme(legend.position = "bottom")
+    
+    
+    
+    ggplotly(gg_svm)
+    
+  })
+  
+  
   
   ######################################
   
@@ -1203,7 +1488,6 @@ output$histogram5 <- renderPlotly({
     
     
     matching_politicians$answered_percentage <- round(ifelse(matching_politicians$statistic_questions == 0 | is.na(matching_politicians$statistic_questions_answered), 0, matching_politicians$statistic_questions_answered / matching_politicians$statistic_questions * 100), 2)
-    current_year <- format(Sys.Date(), "%Y")
     matching_politicians <- matching_politicians %>%
       mutate(age = as.numeric(current_year) - year_of_birth)
     
@@ -1251,28 +1535,117 @@ output$histogram5 <- renderPlotly({
   ####################################################
   ############# CLUSTERING ###########################
   
-
-
-
   
-  output$dendrogramPlot <- renderPlotly({
+  output$dendrogramPlot_sample <- renderPlotly({
+    
+    # Daten vorbereiten
+    data <- prepared_data()
+    
+  
+    # Zufällige Stichprobe von 5% der Daten
+    sample_data <- data %>% sample_frac(0.05)
+    
+    numCluster <- input$numClusters
+    # Hierarchisches Clustering
+    hc <- hclust(dist(sample_data), method = input$linkage)
+    
+    # Erstellen des Dendrogramms
+    p <- fviz_dend(hc, k = numCluster, 
+                   main = "Hierarchisches Clustering (Reduziert mit 5% Sample)",
+                   cex = 0.5,                 # label size
+                   repel = TRUE,               # avoid text overlapping
+                   rect = TRUE, # Add rectangle around groups
+                   rect_fill = TRUE,
+                   horiz = TRUE,
+                   )
+    
+    params <- p$layers[[4]]$aes_params
+    p$layers[[4]]$aes_params <- params[!names(params) %in% c('fill', 'colour')]
+    p$layers[[4]]$mapping$fill <- quo_set_env(quo(cluster), 
+                                                 quo_get_env(p$layers[[4]]$mapping$xmin))
+    
+    
+
+    p
+  })
+  
+
+  output$dendrogramPlot_full <- renderPlotly({
     
     data <- prepared_data()
+    
+    numCluster <- input$numClusters
     # Hierarchisches Clustering
     hc <- hclust(dist(data), method = input$linkage)
     
-    dhc <- as.dendrogram(hc)
     
-    data <- dendro_data(dhc, type = "rectangle")
-    p <- ggplot(segment(data)) + 
-      geom_segment(aes(x = x, y = y, xend = xend, yend = yend)) + 
-      coord_flip() + 
-      scale_y_reverse(expand = c(0.2, 0))
+    p <- fviz_dend(hc, k = numCluster, 
+                   main = "Hierarchisches Clustering (Kompletter Datensatz)",
+                   cex = 0.5,                 # label size
+                   repel = TRUE,               # avoid text overlapping
+                   rect = TRUE, # Add rectangle around groups
+                   rect_fill = TRUE,
+                   horiz = TRUE)
+    
+    params <- p$layers[[4]]$aes_params
+    p$layers[[4]]$aes_params <- params[!names(params) %in% c('fill', 'colour')]
+    p$layers[[4]]$mapping$fill <- quo_set_env(quo(cluster), 
+                                              quo_get_env(p$layers[[4]]$mapping$xmin))
+    
+  
+    
+    p
+  })
+  
+  cluster_data <- reactive({
+    data <- prepared_data()
+    hc <- hclust(dist(data), method = input$linkage)
+    clusters <- cutree(hc, k = input$numClusters)
+    cluster_df <- data.frame(Name = rownames(data), Cluster = as.factor(clusters))
+    cluster_df
+  })
+  
+  output$clusterChart <- renderPlotly({
+    cluster_data <- cluster_data()
+    
+    dat_r <- dat_react()
+    
+    # Merge dat_r with cluster_data by Name = label.x
+    dat_r <- merge(dat_r, cluster_data, by.x = "label.x", by.y = "Name")
+    
+    # Define custom colors
+    party_colors <- c("CDU" = "black", 
+                      "SPD" = "red", 
+                      "FDP" = "yellow", 
+                      "Bündnis 90/Die Grünen" = "green", 
+                      "DIE LINKE" = "purple",
+                      "BSW" = "purple",
+                      "AfD" = "blue", 
+                      "CSU" = "darkblue",
+                      "FREIE WÄHLER" = "orange",
+                      "Die PARTEI" = "pink",
+                      "PIRATEN" = "lightblue",
+                      "NPD" = "brown",
+                      "Tierschutzpartei" = "darkgreen",
+                      "Familien-Partei" = "lightgreen",
+                      "ÖDP" = "gold",
+                      "Volt" = "purple",
+                      "SSW" = "orange",
+                      "Fraktionslos" = "grey",
+                      "parteilos" = "grey",
+                      "Union (CDU/CSU)" = "black")
+    
+    # Plot party.label by cluster
+    p <- ggplot(dat_r, aes(x = Cluster, fill = party.label)) +
+      geom_bar(position = "dodge") +
+      labs(title = "Verteilung der Parteien in den Clustern", x = "Partei", y = "Anzahl") +
+      scale_fill_manual(values = party_colors) +  # Apply custom colors
+      theme_minimal() +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
     
     ggplotly(p)
   })
-  
-  
+
   # Dendrogramm-Rendering mit Silhouettenwerten
   output$dendrogramPlot2 <- renderPlot({
     data <- prepared_data()
@@ -1300,6 +1673,13 @@ output$histogram5 <- renderPlotly({
     data_for_clustering
   })
   
+  # Reaktive Expression für PCA
+  pca_results <- reactive({
+    data <- prepared_data()
+    prcomp(data, scale. = TRUE)
+  })
+  
+  
   
   # Aggregierte Cluster-Daten darstellen
   output$clusterSummary <- renderTable({
@@ -1316,6 +1696,41 @@ output$histogram5 <- renderPlotly({
       labs(title = paste('Boxplot von', var, 'nach Cluster'), x = 'Cluster', y = var) +
       theme_minimal() +
       theme(legend.position = "none")
+  })
+  
+  # Boxplot-Rendering
+  output$spider <- renderPlot({
+    data <- clustering()
+    cluster_data <- aggregate(data[, -ncol(data)], by = list(cluster = data$cluster), FUN = mean)
+    
+    # Maximal- und Minimalwerte für die Radar-Charts berechnen
+    max_vals <- apply(cluster_data[, -1], 2, max)
+    min_vals <- apply(cluster_data[, -1], 2, min)
+    
+    # Für jedes Cluster ein Radar-Chart erstellen
+    par(mfrow = c(1, nrow(cluster_data)))  # Layout für mehrere Plots in einer Zeile
+    
+    for(i in 1:nrow(cluster_data)) {
+      radar_data <- rbind(max_vals, min_vals, cluster_data[i, -1])
+      rownames(radar_data) <- c("Max", "Min", paste("Cluster", cluster_data$cluster[i]))
+      
+      radarchart(radar_data, axistype = 1,
+                 # Anpassung des Polygons
+                 pcol = rgb(0.2, 0.5, 0.5, 0.9),
+                 pfcol = rgb(0.2, 0.5, 0.5, 0.5),
+                 plwd = 4,
+                 
+                 # Anpassung des Gitters
+                 cglcol = "grey", cglty = 1, axislabcol = "grey",
+                 caxislabels = seq(min(min_vals), max(max_vals), length.out = 5),
+                 cglwd = 0.8,
+                 
+                 # Anpassung der Labels
+                 vlcex = 0.8,
+                 title = paste("Cluster", cluster_data$cluster[i])
+      )
+    }
+    par(mfrow = c(1, 1))  # Layout zurücksetzen
   })
   
 
@@ -1345,7 +1760,8 @@ output$histogram5 <- renderPlotly({
     p <- plot_ly(data = mds_df, x = ~V1, y = ~V2, type = 'scatter', mode = 'markers',
                  marker = list(size = 7, opacity = 0.8, color = ~cluster, colorscale = 'Set1'),
                  hoverinfo = 'text',
-                 text = ~paste('Name:', name, '<br>Party:', party_label, '<br>Cluster:', cluster)) %>% 
+                 text = ~paste('Name:', name, '<br>Party:', party_label, '<br>Cluster:', cluster),
+                 source = 'selectedPoint') %>% 
       layout(title = "MDS Scatterplot der Cluster",
              xaxis = list(title = "Dimension 1"),
              yaxis = list(title = "Dimension 2"),
@@ -1355,7 +1771,108 @@ output$histogram5 <- renderPlotly({
   })
   
   
+  
+  
+  output$selectedInfo <- renderDataTable({
+    eventdata <- event_data("plotly_click", source = "selectedPoint")
+    
+    if (!is.null(eventdata)) {
+      point <- eventdata$pointNumber + 1
+      mds_df <- dat_react()  # Aktuelle Daten
+      selected <- mds_df[point, ]
+      
+      # Hinzufügen von Standardspalten und ausgewählten Spalten
+      columns_to_show <- c("label.x", "party.label", input$selectedVars)
+      datatable <- selected[columns_to_show]
+      
+      # Anpassung der Hintergrundfarbe
+      datatable <- datatable %>%
+        datatable(options = list(paging = FALSE, searching = FALSE)) %>%
+        formatStyle(names(datatable), backgroundColor = styleEqual(datatable$label.x, c("lightgrey")))
+      
+      return(datatable)
+    }
+  }, escape = FALSE)
+  
+  # Plot für PCA Ladungen
+  output$pcaPlot <- renderPlot({
+    pca_res <- pca_results()
+    fviz_pca_var(pca_res, col.var = "contrib", 
+                 gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                 repel = TRUE)  # Vermeidet Textüberlappung
+  })
+  
+  
 
+  
+  output$pcaHeatmap <- renderPlotly({
+    pca_res <- pca_results()  # Ihre Funktion, die prcomp ausführt
+    loadings <- pca_res$rotation  # Die Ladungsmatrix
+    
+    # Die transponierte Matrix nutzen, um Hauptkomponenten als Spalten zu haben
+    plot_ly(z = ~t(loadings), x = rownames(loadings), y = colnames(loadings), type = "heatmap",
+            colorscale = "Blues") %>%
+      layout(title = "PCA Loadings Heatmap",
+             xaxis = list(title = "Principal Components"),
+             yaxis = list(title = "Variables", autorange = "reversed"))  # Um die Variable auf der Y-Achse zu haben
+  })
+  
+  output$loadingsBarplot <- renderPlotly({
+    pca_res <- pca_results()  
+    loadings <- pca_res$rotation[, 1:2]  # Nur die ersten zwei Hauptkomponenten
+    
+    # Runden der Ladungen auf zwei Nachkommastellen
+    loadings_rounded <- round(loadings, 2)
+    
+    loadings_df <- as.data.frame(loadings_rounded)
+    loadings_df$Variable <- rownames(loadings)
+    loadings_long <- reshape2::melt(loadings_df, id.vars = "Variable")
+    
+    plot_ly(loadings_long, y = ~Variable, x = ~value, color = ~variable, type = 'bar',
+            text = ~paste("Wert:", value), hoverinfo = 'text', orientation = 'h') %>%
+      layout(xaxis = list(title = 'Ladung', tickformat = ",.2f"),
+             yaxis = list(title = "Variable", automargin = TRUE),
+             barmode = 'group',
+             title = 'Ladungen der Variablen für die ersten zwei Hauptkomponenten')
+  })
+  
+  
+  output$pcaBiplot <- renderPlotly({
+    pca_res <- pca_results()
+    scores <- pca_res$x[, 1:2]
+    loadings <- pca_res$rotation[, 1:2]
+    
+
+    # Umkehrung der Y-Achse
+    scores[, "PC2"] <- -scores[, "PC2"]
+    loadings[, "PC2"] <- -loadings[, "PC2"]
+    
+    
+    scores_df <- as.data.frame(scores)
+    scores_df$id <- rownames(scores)
+    
+    loadings_df <- as.data.frame(loadings)
+    loadings_df$variable <- rownames(loadings)
+    
+    p <- plot_ly(scores_df, x = ~PC1, y = ~PC2, text = ~id, type = 'scatter', mode = 'markers',
+                 marker = list(size = 12, opacity = 0.5)) %>%
+      add_trace(data = loadings_df, x = ~PC1*3, y = ~PC2*3, text = ~variable, mode = 'lines+text',
+                line = list(color = 'red'), textposition = 'top right')
+    
+    p
+  })
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   output$mdsPlotParty <- renderPlotly({
     data_for_clustering <- clustering()  # Deine vorbereitete Daten
     
@@ -1649,7 +2166,6 @@ output$histogram5 <- renderPlotly({
     
     
     matching_politicians$answered_percentage <- round(ifelse(matching_politicians$statistic_questions == 0 | is.na(matching_politicians$statistic_questions_answered), 0, matching_politicians$statistic_questions_answered / matching_politicians$statistic_questions * 100), 2)
-    current_year <- format(Sys.Date(), "%Y")
     matching_politicians <- matching_politicians %>%
       mutate(age = as.numeric(current_year) - year_of_birth)
     
@@ -1667,6 +2183,8 @@ output$histogram5 <- renderPlotly({
     
  
     data <- matching_politicians
+    
+    rownames(data) <- data$label.x
     
     # Auswahl relevanter Spalten
     relevant_columns <- input$selectedVars
@@ -1703,6 +2221,8 @@ output$histogram5 <- renderPlotly({
     
     paste("Durchschnittliche Silhouettenbreite: ", round(avg_sil_width, 3))
   })
+  
+
   
   output$adjustedRandIndex <- renderText({
     # Angenommen, Sie haben eine Variable `true_labels` in `data`
@@ -1756,10 +2276,10 @@ output$histogram5 <- renderPlotly({
       labs(title = "Verteilung der Parteien über Cluster", x = "Cluster", y = "Anzahl der Politiker") +
       theme_minimal()
   })
-
+  
 
   
-  # Beispiel, wie die Funktion in Shiny genutzt werden könnte
+
   output$clusterMetrics <- renderTable({
     metrics <- calculate_metrics(clustering)
     homogeneity_table <- metrics$homogeneity_scores
@@ -1920,6 +2440,19 @@ output$histogram5 <- renderPlotly({
     HTML(paste("Anzahl der gefilterten Abgeordneten: ", number_of_filtered_observations))
   })
   
+  output$dynamicInfoText <- renderUI({
+    info <- legislatureInfo[[input$data]]
+    infoContent <- paste(
+      "<h1>Legislaturperiode", info$jahre, "</h1>",
+      "<p>", info$text, "</p>",
+      "<ul>
+        <li>Anzahl der Abgeordneten: ", info$abgeordnete, "</li>
+        <li>Anzahl der Parteien: ", info$parteien, "</li>
+        <li>Koalitionen: ", info$koalitionen, "</li>
+      </ul>"
+    )
+    HTML(infoContent)
+  })
   
   
 }

@@ -1,0 +1,32 @@
+legislatureInfoTabContent <- tabPanel("Infos zur Legislatur", value = 1,
+                                      tabsetPanel(
+                                        tabPanel("Allgemein",
+                                                 br(),
+                                                 uiOutput("dynamicInfoText"),
+                                                 br(),
+                                                 HTML("<h3>Tabelle: Anzahl Gesetze pro Themenbereich</h3>"),
+                                                 actionButton("toggleTable", "Tabelle ein-/ausklappen"),
+                                                 shinyjs::hidden(
+                                                   div(id = "tableContainer", DT::dataTableOutput("ergebnisse_tabelle"))
+                                                 ),
+                                                 hr(),
+                                                # DT::dataTableOutput("ergebnisse_tabelle"),
+                                                 withSpinner(plotlyOutput("histogram7"), type = 3)
+                                        ),
+                                        tabPanel("Politisches Koordinatensystem",
+                                                 tabsetPanel(
+                                                   tabPanel("Erklärung - Voreingestellt",
+                                                            br(),
+                                                            HTML(politicalSystemText),  # Annahme, dass du bereits eine Variable `politicalSystemText` definiert hast
+                                                            br(),
+                                                            plotlyOutput("koordinatensystem2")
+                                                   ),
+                                                   tabPanel("Anpassbares Koordinatensystem (Experimentell)",
+                                                            br(),
+                                                            plotlyOutput("koordinatensystem3")
+                                                   )
+                                                 )
+                                        )
+                                      )
+)
+

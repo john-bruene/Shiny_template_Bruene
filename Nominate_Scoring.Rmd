@@ -1,0 +1,857 @@
+---
+title: "N-Score Berechnung"
+author: "John F. Brüne"
+date: "2024-07-28"
+output: html_document
+---
+
+```{r}
+
+library(wnominate)
+library(pscl)
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+
+
+
+
+```
+
+```{r}
+
+  # adjust the template from here on
+  # loading the data
+  politician_data2125 <- read.csv("all_politicians_bt_21_25_new.csv")
+  politician_data1721 <- read.csv("all_politicians_bt_17_21_new.csv")
+  politician_data1317 <- read.csv("all_politicians_bt_13_17_new.csv")
+  politician_data0913 <- read.csv("all_politicians_bt_09_13_new.csv")
+  votes_2125_df<- read_csv("all_votes_data_2125_df_new.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
+  votes_1721_df<- read_csv("all_votes_data_1721_df_new.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
+  votes_1317_df<- read_csv("all_votes_data_1317_df_new.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
+  votes_0913_df<- read_csv("all_votes_data_0913_df_new.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
+  polls_2125_df<- read.csv("all__poll_2125_df_new.csv")
+  polls_1721_df<- read.csv("all__poll_1721_df_new.csv")
+  polls_1317_df<- read.csv("all__poll_1317_df_new.csv")
+  polls_0913_df<- read.csv("all__poll_0913_df_new.csv")
+  
+  votes_2125_df <- left_join(votes_2125_df, polls_2125_df, by = "poll.id")
+  votes_1721_df <- left_join(votes_1721_df, polls_1721_df, by = "poll.id")
+  votes_1317_df <- left_join(votes_1317_df, polls_1317_df, by = "poll.id")
+  votes_0913_df <- left_join(votes_0913_df, polls_0913_df, by = "poll.id")
+  
+  wahlkreise21 <- st_read("btw21_geometrie_wahlkreise_shp/Geometrie_Wahlkreise_20DBT.shp")
+  wahlkreise17 <- st_read("btw17_geometrie_wahlkreise_geo_shp/Geometrie_Wahlkreise_19DBT_geo.shp")
+  wahlkreise13 <- st_read("btw13_geometrie_wahlkreise_etrs89_geo_shp/Geometrie_Wahlkreise_18DBT.shp")
+  wahlkreise09 <- st_read("btw09_geometrie_wahlkreise_shp/Geometrie_Wahlkreise_17DBT.shp")
+  
+  current_year <- format(Sys.Date(), "%Y")
+
+
+```
+
+## Calculation
+
+```{r}
+# transforming datatable votes_0913_df, so that each row represents a politician and each column a vote. Furthermore behind each politician a colum for the party is added
+
+
+
+# Step 1: Select relevant columns and pivot to a wider format
+wide_votes_df <- votes_2125_df %>%
+  select(mandate.id, poll.id, vote, fraction.label) %>%
+  pivot_wider(names_from = poll.id, values_from = vote)
+
+# Step 2: Ensure the party information (fraction.label) is correctly merged
+# Since mandate.id is unique, we can directly add the party column
+wide_votes_df <- wide_votes_df %>%
+  rename(party = fraction.label)
+
+
+
+
+```
+
+## Creating Rollcall object
+
+
+```{r}
+
+library(dplyr)
+library(tidyr)
+library(wnominate)
+
+duplicates <- votes_2125_df |>
+  dplyr::summarise(n = dplyr::n(), .by = c(mandate.id, poll.id)) |>
+  dplyr::filter(n > 1L)
+
+# remeove duplicates
+
+votes_2125_df <- votes_2125_df |>
+  dplyr::distinct(mandate.id, poll.id, .keep_all = TRUE)
+
+# Assuming votes_2125_df is your dataframe
+# Step 1: Pivot the dataframe to get the votes matrix
+votes_matrix <- votes_2125_df %>%
+  select(mandate.id, poll.id, vote) %>%
+  pivot_wider(names_from = poll.id, values_from = vote, names_prefix = "vote_")
+
+
+# Convert the votes to numeric codes
+votes_matrix <- votes_matrix %>%
+  mutate(across(starts_with("vote_"), ~ case_when(
+    . == "yes" ~ 1,
+    . == "no" ~ 6,
+    . == "abstain" ~ 9,
+    . == "no_show" ~ 0,
+    is.na(.) ~ 0,  # Treat NA as notInLegis
+    TRUE ~ NA_real_
+  )))
+
+# Save the row names as the mandate labels
+row.names(votes_matrix) <- votes_matrix$mandate.id
+votes_matrix <- votes_matrix %>% select(-mandate.id)
+
+# Convert to matrix
+votes_matrix <- as.matrix(votes_matrix)
+
+
+
+```
+
+## Code list
+
+```{r}
+
+# Step 2: Extract the legislator names without the legislative period
+legislator_names <- votes_2125_df %>%
+  select(mandate.id, mandate.label) %>%
+  distinct() %>%
+  arrange(mandate.id) %>%
+  mutate(mandate.label = sub(" \\(.*\\)", "", mandate.label)) %>%
+  pull(mandate.label)
+
+```
+
+
+```{r}
+
+#compare legislator_data$name with legislator_names
+
+# Check for missing names
+
+missing_names <- setdiff(legislator_names, legislator_data$name)
+
+# Check for extra names
+
+extra_names <- setdiff(legislator_data$name, legislator_names)
+
+length(legislator_names)
+
+length(legislator_data$name)
+
+#check for duplicates in legislator_data$name
+
+duplicates <- legislator_data %>% 
+  group_by(name) %>% 
+  summarise(count = n()) %>% 
+  filter(count > 1)
+
+
+
+```
+
+## Politicians data
+
+```{r}
+
+# Step 3: Create the legislators' data
+legislator_data <- votes_2125_df %>%
+  select(mandate.id, mandate.label, fraction.label) %>%
+  distinct() %>%
+  rename(name = mandate.label, party = fraction.label) %>%
+  mutate(name = sub(" \\(.*\\)", "", name)) %>%  # Remove legislative period from names
+  mutate(party = sub(" \\(.*\\)", "", party))   # Remove legislative period from party labels
+
+# Assuming districts data is available in some form, add it here
+# For demonstration, assigning a placeholder district
+legislator_data <- legislator_data %>%
+  mutate(district = "Unknown")
+
+# if party = NA check for data in politician_data1721$party.label
+# name is saved in politician_data1721$label.x
+
+legislator_data <- legislator_data %>%
+  mutate(party = ifelse(is.na(party), politician_data1721$party.label[match(name, politician_data1721$label.x)], party))
+
+
+
+# Convert to dataframe
+legislator_data <- as.data.frame(legislator_data)
+
+# only chose unique mandate ids
+
+legislator_data <- legislator_data %>% distinct(mandate.id, .keep_all = TRUE)
+
+```
+
+
+```{r}
+
+# Step 4: Prepare the vote data
+vote_data <- votes_2125_df %>%
+  select(poll.id, poll.label, poll.api_url, poll.abgeordnetenwatch_url) %>%
+  distinct() %>%
+  arrange(poll.id) %>%
+  rename(
+    `Vote #` = poll.id,
+    `Bill Title` = poll.label,
+    `Bill No.` = poll.api_url,  # Assuming poll.api_url as Bill No.
+    `Date of Vote` = poll.abgeordnetenwatch_url  # Assuming poll.abgeordnetenwatch_url as Date of Vote
+  )
+
+# Add placeholder data for missing columns
+vote_data <- vote_data %>%
+  mutate(
+    `Question/Motion` = NA,  # Placeholder, update as needed
+    `Total Yeas` = NA,  # Placeholder, update as needed
+    `Total Nays` = NA   # Placeholder, update as needed
+  )
+
+# Convert to dataframe
+vote_data <- as.data.frame(vote_data)
+
+
+```
+
+```{r}
+
+
+# Step 5: Create the roll-call object using the wnominate package
+rc <- rollcall(
+  votes_matrix,
+  yea = 1,
+  nay = 6,
+  missing = 9,
+  notInLegis = 0,
+  legis.names = legislator_names,
+  legis.data = legislator_data,
+  vote.data = vote_data
+)
+
+```
+
+
+```{r}  
+
+# Identifiziere Extrempositionen, z.B. ein Mitglied der extremen linken und rechten Parteien
+left_legislator <- which(legislator_names == "Gregor Gysi")
+right_legislator <- which(legislator_names == "Alice Weidel")
+
+
+wnom_results <- wnominate(rc, polarity = c(right_legislator, right_legislator))
+
+# View the summary of the results
+summary(wnom_results)
+
+# Optionally, plot the results
+plot(wnom_results)
+
+
+
+
+```
+### Save Results
+
+```{r}
+
+#save wnomresults for the years
+
+save(wnom_results, file = "wnom_results_2125.RData")
+
+load("wnom_results_2125.RData")
+
+
+```
+
+
+
+
+
+### Plots
+
+```{r}
+
+plot.coords(wnom_results, main.title="W-NOMINATE Coordinates", d1.title="First Dimension", d2.title="Second Dimension", dims=c(1,2), plotBy="party", color=TRUE, shape=TRUE, cutline=NULL, Legend=TRUE, legend.x=0.8, legend.y=1)
+
+
+
+```
+
+
+
+
+```{r}
+
+
+
+
+
+# Specific vote ID to be analyzed
+specific_vote_id <- "vote_5418"  # Replace with your actual vote ID
+
+# Extract the vote data for the specific vote
+vote_data <- votes_matrix[, as.character(specific_vote_id)]
+
+# Create a data frame for logistic regression, excluding rows with NAs
+vote_coords <- data.frame(coord1D = wnom_results$legislators$coord1D, 
+                          coord2D = wnom_results$legislators$coord2D,
+                          party = as.factor(wnom_results$legislators$party),
+                          vote = as.factor(vote_data))
+
+# Remove rows with NA values
+vote_coords <- na.omit(vote_coords)
+
+# Fit a logistic regression model
+logistic_model <- glm(party ~ coord1D + coord2D, data = vote_coords, family = binomial)
+
+# Extract the coefficients
+intercept <- coef(logistic_model)[1]
+slope1 <- coef(logistic_model)[2]
+slope2 <- coef(logistic_model)[3]
+
+# Print coefficients for debugging
+print(paste("Intercept:", intercept))
+print(paste("Slope1:", slope1))
+print(paste("Slope2:", slope2))
+
+# Function to calculate decision boundary
+decision_boundary <- function(x) {
+  -(intercept + slope1 * x) / slope2
+}
+
+# Calculate decision boundary points
+coord1D_range <- range(vote_coords$coord1D, na.rm = TRUE)
+x_vals <- seq(coord1D_range[1], coord1D_range[2], length.out = 100)
+y_vals <- decision_boundary(x_vals)
+
+# Scale the y_vals to bring them within the visible plot range
+scaling_factor <- max(y_vals) / max(wnom_results$legislators$coord2D, na.rm = TRUE)
+y_vals_scaled <- y_vals / scaling_factor
+
+# Print x_vals and y_vals for debugging
+print("x_vals:")
+print(x_vals)
+print("y_vals_scaled:")
+print(y_vals_scaled)
+
+
+# Plotting the NOMINATE scores
+plot(wnom_results$legislators$coord1D, wnom_results$legislators$coord2D,
+     xlab = "DW-NOMINATE Dimension 1: Economic/Redistributive", 
+     ylab = "DW-NOMINATE Dimension 2: Other Votes", 
+     main = paste("NOMINATE Analysis for Vote", specific_vote_id),
+     col = ifelse(vote_data == 1, "green", 
+                  ifelse(vote_data == 6, "red", "grey")),
+     pch = ifelse(vote_data == 1, 17, 
+                  ifelse(vote_data == 6, 19, 1)))
+
+# Add the scaled decision boundary
+lines(x_vals, y_vals_scaled, col = "blue", lwd = 2)
+
+# Add a legend
+legend("topright", legend = c("Ja", "Nein", "Enthaltung", "Decision Boundary"), 
+       col = c("green", "red", "grey", "blue"), pch = c(17, 19, 1, NA), lwd = c(NA, NA, NA, 2))
+
+
+
+```
+
+
+```{r}  
+
+defIdeal <- ideal(rc, d = 2)
+
+# View the ideal points
+
+plot(defIdeal)
+```
+
+
+
+```{r}  
+
+#party_colors <- c(  "SPD" = "red", 
+#                    "FDP" = "yellow", 
+ #                   "DIE GRÜNEN" = "green", 
+  #                  "DIE LINKE" = "purple",
+   #                 "fraktionslos" = "grey",
+    #                "CDU/CSU" = "black",
+     #               )
+
+
+party_colors <- c("CDU" = "black", 
+                    "SPD" = "red", 
+                    "FDP" = "yellow", 
+                    "Bündnis 90/Die Grünen" = "green", 
+                    "BÜNDNIS 90/DIE GRÜNEN" = "green", 
+                    "DIE LINKE" = "purple",
+                    "DIE LINKE." = "purple",
+                    "Die Linke." = "purple",
+                    "BSW" = "purple",
+                    "AfD" = "blue", 
+                    "CSU" = "darkblue",
+                    "FREIE WÄHLER" = "orange",
+                    "Die PARTEI" = "pink",
+                    "PIRATEN" = "lightblue",
+                    "NPD" = "brown",
+                    "Tierschutzpartei" = "darkgreen",
+                    "Familien-Partei" = "lightgreen",
+                    "ÖDP" = "gold",
+                    "Volt" = "purple",
+                    "SSW" = "orange",
+                    "Fraktionslos" = "grey",
+                    "fraktionslos" = "grey",
+                    "parteilos" = "grey",
+                    "CDU/CSU" = "black",
+                    "Union (CDU/CSU)" = "black")
+
+
+
+
+
+```
+
+
+```{r}
+
+library(e1071)
+
+# Specific vote ID to be analyzed
+specific_vote_id <- "vote_5418"  # Replace with your actual vote ID
+
+# Extract the vote data for the specific vote
+vote_data <- votes_matrix[, as.character(specific_vote_id)]
+
+# Create a data frame for logistic regression, excluding rows with NAs
+vote_coords <- data.frame(coord1D = wnom_results$legislators$coord1D, 
+                          coord2D = wnom_results$legislators$coord2D,
+                          party = as.factor(wnom_results$legislators$party),
+                          vote = as.factor(vote_data))
+
+# Remove rows with NA values
+vote_coords <- na.omit(vote_coords)
+
+# Filter out the points with vote == 0
+vote_coords_filtered <- subset(vote_coords, vote != 0)
+
+# Replace 1 by yes, 6 by no and 9 by abstain and change it to factor
+vote_coords_filtered$vote <- factor(ifelse(vote_coords_filtered$vote == 1, "yes", 
+                                           ifelse(vote_coords_filtered$vote == 6, "no", "abstain")))
+
+# Train SVM model
+svm_model <- svm(party ~ coord1D + coord2D, data = vote_coords_filtered, kernel = "linear", scale = FALSE)
+
+# Create grid for prediction
+coord1D_range <- seq(min(vote_coords_filtered$coord1D, na.rm = TRUE), max(vote_coords_filtered$coord1D, na.rm = TRUE), length.out = 100)
+coord2D_range <- seq(min(vote_coords_filtered$coord2D, na.rm = TRUE), max(vote_coords_filtered$coord2D, na.rm = TRUE), length.out = 100)
+contour_data <- expand.grid(coord1D = coord1D_range, coord2D = coord2D_range)
+
+# Predict on the contour data
+contour_data$pred <- predict(svm_model, newdata = contour_data)
+
+# Plot with ggplot2 and plotly
+gg <- ggplot(vote_coords_filtered, aes(x = coord1D, y = coord2D, color = party)) +
+  geom_point(aes(shape = factor(vote))) +
+  geom_contour(data = contour_data, aes(z = as.numeric(pred)), breaks = 1.5, color = "blue", size = 1) +
+  scale_color_manual(values = party_colors) +
+  scale_shape_manual(
+    values = c("yes" = 17,  # Dreieck nach oben (gefüllt)
+               "no" = 4,    # Dreieck nach unten (gefüllt)
+               "abstain" = 21), # Kreis (gefüllt)
+    labels = c("yes" = "Ja",
+               "no" = "Nein",
+               "abstain" = "Enthaltung")
+  ) +
+  theme_minimal() +
+  labs(title = paste("NOMINATE Analysis for Vote", specific_vote_id), 
+       x = "DW-NOMINATE Dimension 1", 
+       y = "DW-NOMINATE Dimension 2",
+       shape = "Abstimmung")
+
+print(gg)
+
+
+
+```
+
+
+
+
+
+```{r}
+
+
+
+# Spezifische Abstimmungs-ID, die analysiert werden soll
+specific_vote_id <- "vote_5418"  # Ersetzen durch die tatsächliche Abstimmungs-ID
+
+# Abstimmungsdaten für die spezifische Abstimmung extrahieren
+vote_data <- votes_matrix[, specific_vote_id]
+
+# Datenrahmen erstellen
+vote_coords <- data.frame(coord1D = wnom_results$legislators$coord1D, 
+                          coord2D = wnom_results$legislators$coord2D, 
+                          party = as.factor(wnom_results$legislators$party),
+                          vote = as.factor(vote_data),
+                          name = wnom_results$legislators$name)  
+
+# Zeilen mit NA-Werten entfernen
+vote_coords <- na.omit(vote_coords)
+
+
+# Support Vector Machine Modell anpassen
+svm_model <- svm(vote ~ coord1D + coord2D, data = vote_coords, kernel = "linear", scale = FALSE)
+
+
+# Erstellen einer Gitter für die Entscheidungsgrenze
+coord1D_range <- seq(min(vote_coords$coord1D), max(vote_coords$coord1D), length.out = 100)
+coord2D_range <- seq(min(vote_coords$coord2D), max(vote_coords$coord2D), length.out = 100)
+grid <- expand.grid(coord1D = coord1D_range, coord2D = coord2D_range)
+
+# Vorhersagen für das Gitter
+grid$pred <- predict(svm_model, newdata = grid)
+
+# Plot der NOMINATE-Scores
+plot(wnom_results$legislators$coord1D, wnom_results$legislators$coord2D,
+     xlab = "DW-NOMINATE Dimension 1", 
+     ylab = "DW-NOMINATE Dimension 2", 
+     main = paste("NOMINATE Analysis for Vote", specific_vote_id),
+     col = ifelse(vote_data == 1, "green", ifelse(vote_data == 6, "red", "grey")),
+     pch = ifelse(vote_data == 1, 17, ifelse(vote_data == 6, 19, 1)))
+
+
+# Entscheidungsgrenze hinzufügen
+contour(coord1D_range, coord2D_range, matrix(as.numeric(grid$pred), length(coord1D_range), length(coord2D_range)), 
+        levels = 1.5, add = TRUE, col = "blue", lwd = 2)
+
+
+
+# Legende hinzufügen
+legend("topright", legend = c("Ja", "Nein", "Enthaltung", "Entscheidungsgrenze"), 
+       col = c("green", "red", "grey", "blue"), pch = c(17, 19, 1, NA), lwd = c(NA, NA, NA, 2))
+
+
+#transform to plotly
+
+
+
+```
+
+
+### new plot
+```{r}
+
+# Specific vote ID to be analyzed
+specific_vote_id <- "vote_5418"  # Ersetzen durch die tatsächliche Abstimmungs-ID
+
+# Extract the vote data for the specific vote
+
+P_rollcall <- votes_matrix
+vote_data <- P_rollcall[, as.character(specific_vote_id)]
+
+# Create a data frame for logistic regression, excluding rows with NAs
+vote_coords <- data.frame(coord1D = wnom_results$legislators$coord1D, 
+                          coord2D = wnom_results$legislators$coord2D,
+                          Party = as.factor(wnom_results$legislators$party),
+                          vote = as.factor(vote_data))
+
+# Extract the vote data for the specific vote
+vote_data <- P_rollcall[, as.character(specific_vote_id)]
+
+
+# Remove rows with NA values
+vote_coords <- na.omit(vote_coords)
+
+# Fit a logistic regression model
+logistic_model <- glm(vote ~ coord1D + coord2D, data = vote_coords, family = binomial)
+
+# Extract the coefficients
+intercept <- coef(logistic_model)[1]
+slope1 <- coef(logistic_model)[2]
+slope2 <- coef(logistic_model)[3]
+
+# Print coefficients for debugging
+print(paste("Intercept:", intercept))
+print(paste("Slope1:", slope1))
+print(paste("Slope2:", slope2))
+
+# Function to calculate decision boundary
+decision_boundary <- function(x) {
+  -(intercept + slope1 * x) / slope2
+}
+
+# Calculate decision boundary points
+coord1D_range <- range(vote_coords$coord1D, na.rm = TRUE)
+x_vals <- seq(coord1D_range[1], coord1D_range[2], length.out = 100)
+y_vals <- decision_boundary(x_vals)
+
+# Scale the y_vals to bring them within the visible plot range
+scaling_factor <- max(y_vals) / max(wnom_results$legislators$coord2D, na.rm = TRUE)
+y_vals_scaled <- y_vals / scaling_factor
+
+# Print x_vals and y_vals for debugging
+print("x_vals:")
+print(x_vals)
+print("y_vals_scaled:")
+print(y_vals_scaled)
+
+
+# Plotting the NOMINATE scores
+plot(wnom_results$legislators$coord1D, wnom_results$legislators$coord2D,
+     xlab = "DW-NOMINATE Dimension 1: Economic/Redistributive", 
+     ylab = "DW-NOMINATE Dimension 2: Other Votes", 
+     main = paste("NOMINATE Analysis for Vote", specific_vote_id),
+     col = ifelse(vote_data == 1, "green", 
+                  ifelse(vote_data == 6, "red", "grey")),
+     pch = ifelse(vote_data == 1, 17, 
+                  ifelse(vote_data == 6, 19, 1)))
+
+# Add the scaled decision boundary
+
+x_vals <- seq(-1, 1, length.out = 100)  # x-Werte von -1 bis 1
+y_vals_scaled <- 1.4 * x_vals - 0.5
+lines(x_vals, y_vals_scaled, col = "blue", lwd = 2)
+
+# Add a legend
+legend("bottomleft" ,legend = c("Yes", "No", "Abstain", "Decision Boundary"), 
+       col = c("green", "red", "grey", "blue"), pch = c(17, 19, 1, NA), lwd = c(NA, NA, NA, 2))
+
+
+
+
+
+```
+
+
+```{r}
+
+
+library(ggplot2)
+
+# Konvertiere die vote-Werte zu verständlichen Labels
+vote_coords$vote_label <- factor(vote_coords$vote, levels = c(1, 6, 9), labels = c("Yes", "No", "Abstain"))
+
+# Scatterplot mit ggplot
+p <- ggplot(vote_coords, aes(x = coord1D, y = coord2D, color = vote_label, shape = vote_label)) +
+  geom_point(size = 2) +
+  scale_color_manual(values = c("green", "red", "grey")) +
+  scale_shape_manual(values = c(17, 19, 1)) +
+  labs(
+    title = paste("NOMINATE Analysis for Vote '5418 Cannabisgesetz'"),
+    x = "DW-NOMINATE Dimension 1: Economic/Redistributive",
+    y = "DW-NOMINATE Dimension 2: Other Votes",
+    color = "Vote",
+    shape = "Vote"
+  ) +
+  theme_minimal()
+
+# Entscheidungsgrenze hinzufügen
+p <- p + geom_abline(intercept = -intercept / slope2, slope = -slope1 / slope2, color = "blue", linetype = "dashed", size = 1)
+
+library(ggthemes)
+
+# Plot anzeigen
+print(p)
+
+
+
+```
+
+
+```{r}
+
+# Laden der erforderlichen Bibliotheken
+library(dplyr)
+library(e1071)
+library(plotly)
+
+# Spezifische Abstimmungs-ID, die analysiert werden soll
+specific_vote_id <- "vote_5418"  # Ersetzen durch die tatsächliche Abstimmungs-ID
+
+# Abstimmungsdaten für die spezifische Abstimmung extrahieren
+vote_data <- votes_matrix[, specific_vote_id]
+
+# Datenrahmen erstellen
+vote_coords <- data.frame(
+  coord1D = wnom_results$legislators$coord1D, 
+  coord2D = wnom_results$legislators$coord2D, 
+  party = as.factor(wnom_results$legislators$party),
+  vote = as.factor(vote_data),
+  name = wnom_results$legislators$name # Annahme, dass Namen in wnom_results$legislators$name sind
+)
+
+# Zeilen mit NA-Werten entfernen
+vote_coords <- na.omit(vote_coords)
+
+# SVM-Modell anpassen
+svm_model <- svm(party ~ coord1D + coord2D, data = vote_coords, kernel = "linear", scale = FALSE)
+
+# Erstellen eines Gitters für die Entscheidungsgrenze
+coord1D_range <- seq(min(vote_coords$coord1D), max(vote_coords$coord1D), length.out = 100)
+coord2D_range <- seq(min(vote_coords$coord2D), max(vote_coords$coord2D), length.out = 100)
+grid <- expand.grid(coord1D = coord1D_range, coord2D = coord2D_range)
+
+# Vorhersagen für das Gitter
+grid$pred <- predict(svm_model, newdata = grid)
+
+# Wahrscheinlichkeiten basierend auf wnom_results berechnen
+vote_coords$prob_yes <- ifelse(vote_coords$vote == 1, 1, 0.5)  # Beispielhafte Zuordnung, hier kannst du deine spezifische Berechnung einfügen
+vote_coords$prob_no <- 1 - vote_coords$prob_yes
+
+# Interaktiver Plot mit plotly
+plot_ly() %>%
+  add_trace(
+    data = vote_coords, 
+    x = ~coord1D, 
+    y = ~coord2D, 
+    type = 'scatter', 
+    mode = 'markers',
+    text = ~paste("Name:", name, "<br>Prob Ja:", round(prob_yes * 100, 2), "%<br>Prob Nein:", round(prob_no * 100, 2), "%<br>Party:", party),
+    marker = list(
+      color = ~ifelse(vote == 1, 'green', ifelse(vote == 6, 'red', 'grey')),
+      symbol = ~ifelse(vote == 1, 'diamond', ifelse(vote == 6, 'circle', 'cross'))
+    ),
+    hoverinfo = 'text'
+  ) %>%
+  add_contour(
+    x = coord1D_range,
+    y = coord2D_range,
+    z = matrix(as.numeric(grid$pred), length(coord1D_range), length(coord2D_range)),
+    colorscale = 'Viridis',
+    showscale = FALSE,
+    contours = list(
+      start = 1.5, 
+      end = 1.5, 
+      size = 0.01, 
+      coloring = 'lines'
+    ),
+    line = list(color = 'blue', width = 2),
+    name = 'Entscheidungsgrenze'
+  ) %>%
+  layout(
+    title = paste("NOMINATE Analysis for Vote", specific_vote_id),
+    xaxis = list(title = "DW-NOMINATE Dimension 1"),
+    yaxis = list(title = "DW-NOMINATE Dimension 2"),
+    legend = list(x = 1, y = 1, bgcolor = 'rgba(255, 255, 255, 0.5)'),
+    showlegend = TRUE
+  )
+
+
+
+```
+
+## Teil aus EU Code
+```{r}
+
+# Specific vote ID to be analyzed
+specific_vote_id <- "vote_5418" # Replace with your actual vote ID
+
+# Extract the vote data for the specific vote
+
+P_rollcall <- votes_matrix
+vote_data <- P_rollcall[, as.character(specific_vote_id)]
+
+# Create a data frame for logistic regression, excluding rows with NAs
+vote_coords <- data.frame(coord1D = wnom_results$legislators$coord1D, 
+                          coord2D = wnom_results$legislators$coord2D,
+                          Party = as.factor(wnom_results$legislators$party),
+                          vote = as.factor(vote_data))
+
+
+# Remove rows with NA values
+vote_coords <- na.omit(vote_coords)
+
+# Filter out the points with vote == 0
+vote_coords_filtered <- subset(vote_coords, vote != 0)
+
+# Replace 1 by yes, 6 by no and 9 by abstain and change it to factor
+vote_coords_filtered$vote <- factor(ifelse(vote_coords_filtered$vote == 1, "yes", 
+                                           ifelse(vote_coords_filtered$vote == 6, "no", "abstain")))
+
+
+
+# Train SVM model
+svm_model <- svm(vote ~ coord1D + coord2D , data = vote_coords_filtered, kernel = "linear", scale = FALSE)
+
+# Create grid for prediction
+coord1D_range <- seq(min(vote_coords_filtered$coord1D) - 0.5, max(vote_coords_filtered$coord1D) + 0.5, length.out = 100)
+coord2D_range <- seq(min(vote_coords_filtered$coord2D) - 0.5, max(vote_coords_filtered$coord2D) + 0.5, length.out = 100)
+
+contour_data <- expand.grid(coord1D = coord1D_range, coord2D = coord2D_range)
+
+# Predict on the contour data
+contour_data$pred <- predict(svm_model, newdata = contour_data)
+
+# Plot with ggplot2 and plotly
+gg_svm <- ggplot(vote_coords_filtered, aes(x = coord1D, y = coord2D, color = Party)) +
+  geom_point(aes(shape = factor(vote)), size = 6) +  # Größe der Punkte/Shape
+  geom_contour(data = contour_data, aes(z = as.numeric(pred)), breaks = 1.5, color = "blue", size = 2) +
+  scale_color_manual(values = party_colors) +
+  scale_shape_manual(
+    values = c("yes" = 17,  # Dreieck nach oben (gefüllt)
+               "no" = 4,    # Dreieck nach unten (gefüllt)
+               "abstain" = 21), # Kreis (gefüllt)
+    labels = c("yes" = "Yes",
+               "no" = "No",
+               "abstain" = "Abstain")
+  ) +
+  theme_minimal() +
+  labs(title = paste("NOMINATE Analysis for Vote '5418 Cannabisgesetz'"), 
+       shape = "Casted Vote") +
+  theme(
+    plot.title = element_text(size = 30), # Größe des Titels
+    axis.title = element_text(size = 18), # Größe der Achsentitel
+    axis.text = element_text(size = 16),  # Größe der Achsenbeschriftungen
+    legend.title = element_text(size = 18), # Größe der Legendentitel
+    legend.text = element_text(size = 12),
+    legend.position = "bottom"  # Größe des Legendentexts
+  )
+
+
+
+gg_cut <- ggplot(vote_coords_filtered, aes(x = coord1D, y = coord2D, color = Party)) +
+    geom_point(aes(shape = factor(vote))) +
+    geom_abline(intercept = -svm_model$rho/svm_model$coefs[2], slope = -svm_model$coefs[1]/svm_model$coefs[2], color = "blue", linetype = "dashed") +
+    scale_color_manual(values = party_colors) +
+    scale_shape_manual(
+    values = c("yes" = 17,  # Dreieck nach oben (gefüllt)
+               "no" = 4,    # Dreieck nach unten (gefüllt)
+               "abstain" = 21), # Kreis (gefüllt)
+    labels = c("yes" = "Yes",
+               "no" = "No",
+               "abstain" = "Abstain"))+
+    theme_minimal() +
+    labs(title = paste("NOMINATE Analysis for Vote", specific_vote_id),
+         x = "DW-NOMINATE Dimension 1",
+         y = "DW-NOMINATE Dimension 2",
+         shape = "Casted Vote")
+
+
+print(gg_svm)
+
+print(gg_cut)
+
+
+
+
+
+
+
+table(contour_data$pred)
+
+
+
+
+```
