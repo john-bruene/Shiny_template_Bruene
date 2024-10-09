@@ -934,32 +934,6 @@ server <- function(input, output, session) {
   
   # Leaflet map
   
-  output$leaflet_map <- renderLeaflet({
-    dat_r <- dat_react()
-    
-    location_data <- dat_r
-    location_data$name <- dat_r$label.x
-    
-    # Jittering 
-    jitter_amount <- 0.001  # could be adjusted
-    set.seed(123)  
-    location_data$lat_jitter <- location_data$lat + runif(nrow(location_data), -jitter_amount, jitter_amount)
-    location_data$long_jitter <- location_data$long + runif(nrow(location_data), -jitter_amount, jitter_amount)
-    
-    myColors <- c("yes" = "#a4d67a", "no" = "#c76f5e", "abstain" = "#c7b6a7", "no_show" = "#7c7b7d")
-    pal <- colorFactor(myColors, levels = location_data$vote)
-    
-    leaflet() %>%
-      addTiles() %>%
-      setView(lng = 10, lat = 51.5, zoom = 6) %>%
-      addCircleMarkers(data = location_data, radius = 5, lng = location_data$long_jitter, lat = location_data$lat_jitter, color = ~pal(location_data$vote), opacity = 0.9, popup = paste(
-        "<strong>", location_data$vote, "</strong>: ", 
-        location_data$name, ", ", 
-        location_data$party.label, 
-        "<br><a href='", location_data$abgeordnetenwatch_url, "' target='_blank'>Profil</a>"
-      ))
-  })
-  
   ############################
 
   output$leaflet_map1 <- renderLeaflet({

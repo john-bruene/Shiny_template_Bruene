@@ -1,4 +1,4 @@
-# call all the necessary packages
+# Shiny-specific packages
 library(shiny)
 library(bslib)
 library(DT)
@@ -7,34 +7,43 @@ library(shinyBS)
 library(shinyWidgets)
 library(shinycssloaders)
 library(shinydisconnect)
-library(patchwork)
-library(httr)
-library(jsonlite)
+library(shinyjs)
+
+# Data manipulation and visualization
 library(tidyverse)
-library(sf)
-library(ggspatial)
-library(maps)
+library(patchwork)
 library(gridExtra)
+library(RColorBrewer)
+
+# Spatial data handling and mapping
+library(sf)
 library(leaflet)
-library(wordcloud2)
-library(labourR)
+
+# Clustering, dimension reduction, and statistical analysis
 library(FactoMineR)
 library(factoextra)
 library(cluster)
-library(caret)
-library(slickR)
-library(dendextend)
-#library(ggtree)
-library(ggdendro)
 library(mclust)
-library(shinyjs)
-library(RColorBrewer) 
-library(rlang)
-library(wnominate)
+library(dendextend)
+library(ggdendro)
 library(e1071)
-library(fmsb)
-library(ggparliament)
 
+# Machine learning and model evaluation
+library(caret)
+
+# visualization and plotting
+library(wordcloud2)
+library(ggparliament)
+library(slickR)
+
+# Political analysis
+library(wnominate)
+
+# wordcloud
+library(labourR)
+
+# radar chart
+library(fmsb)
 
 options(spinner.color="#153268", spinner.color.background="#ffffff", spinner.size=2)
 
