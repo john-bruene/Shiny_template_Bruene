@@ -1,9 +1,9 @@
 # Call the helpers and text files
 source("helpers.R")
-source("analysisTabContent.R") 
-source("votingInfoTabContent.R")
-source("legislatureInfoTabContent.R")
-source("sidebarContent.R")
+source("content/analysisTabContent.R") 
+source("content/votingInfoTabContent.R")
+source("content/legislatureInfoTabContent.R")
+source("content/sidebarContent.R")
 load("infoTexts/introText.RData")
 load("infoTexts/legislatureInfoText.RData")
 load("infoTexts/votingInfoText.RData")
