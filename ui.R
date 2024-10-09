@@ -4,11 +4,11 @@ source("analysisTabContent.R")
 source("votingInfoTabContent.R")
 source("legislatureInfoTabContent.R")
 source("sidebarContent.R")
-load("introText.RData")
-load("legislatureInfoText.RData")
-load("votingInfoText.RData")
-load("analysisInfoText.RData")
-load("politicalSystemText.RData")
+load("infoTexts/introText.RData")
+load("infoTexts/legislatureInfoText.RData")
+load("infoTexts/votingInfoText.RData")
+load("infoTexts/analysisInfoText.RData")
+load("infoTexts/politicalSystemText.RData")
 
 # Define UI for random distribution app ----
 ui <- fluidPage(

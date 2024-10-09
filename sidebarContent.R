@@ -1,6 +1,6 @@
 sidebarContent <- sidebarPanel(
   id = "sidebar", width = 4,
-  h4("Option Panel", style = "font-weight: 700;"),
+  h4("Auswahl", style = "font-weight: 700;"),
   
   withMathJax(), # for latex-ish mathjax code (how? Look into the input widgets)
   

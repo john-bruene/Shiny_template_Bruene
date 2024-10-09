@@ -1,0 +1,95 @@
+"poll.id","Title","Result","Ausschuss1","Ausschuss2","Ausschuss3","Label1","Label2","Label3"
+999,"Verbot der NPD",FALSE,NA,NA,NA,"Politisches Leben, Parteien",NA,NA
+998,"Verlängerung des Bundeswehreinsatzes in Mali",TRUE,NA,NA,NA,"Entwicklungspolitik",NA,NA
+996,"Betreuungsgeld verhindern (Änderungsantrag)",FALSE,NA,NA,NA,"Arbeit und Beschäftigung","Bildung und Erziehung",NA
+995,"Bundeswehr auch in Zukunft an Libanon-Einsatz UNIFIL beteiligt",TRUE,NA,NA,NA,"Verteidigung",NA,NA
+993,"Schärfere Regeln gegen Abgeordnetenbestechung",FALSE,NA,NA,NA,"Lobbyismus & Transparenz",NA,NA
+990,"EU-Operation Atalanta",TRUE,NA,NA,NA,"Verteidigung",NA,NA
+987,"Finanzhilfen für Zypern (ESM)",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen","Finanzen",NA
+986,"Frauenquote in Aufsichtsräten",FALSE,NA,NA,NA,"Arbeit und Beschäftigung","Frauen",NA
+983,"Privatisierung der Wasserversorgung verhindern (Grünen-Antrag)",FALSE,NA,NA,NA,"Recht","Menschenrechte","Wirtschaft"
+982,"Privatisierung der Wasserversorgung verhindern (Linken-Antrag)",FALSE,NA,NA,NA,"Recht","Menschenrechte","Wirtschaft"
+981,"Mali-Einsatz (militärische Ausbildungsmission)",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen",NA,NA
+980,"Mali-Einsatz (internationale Unterstützungsmission)",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen",NA,NA
+978,"Leistungsschutzrecht",TRUE,NA,NA,NA,"Medien, Kommunikation und Informationstechnik","Recht",NA
+977,"Verlängerung Afghanistan-Einsatz (ISAF)",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen",NA,NA
+965,"Mietrechtsreform",TRUE,NA,NA,NA,"Raumordnung, Bau- und Wohnungswesen","Recht","Verbraucherschutz"
+964,"Patriot-Einsatz in der Türkei",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen","Verteidigung",NA
+963,"Beschneidung von Jungen aus religiösen Gründen",TRUE,NA,NA,NA,"Gesellschaftspolitik, soziale Gruppen","Recht",NA
+962,"Finanzhilfe für Griechenland",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen","Europapolitik und Europäische Union","Finanzen"
+960,"Einführung eines Betreuungsgeldes",TRUE,NA,NA,NA,"Bildung und Erziehung","Familie",NA
+959,"Offenlegung von Nebeneinkünften auf Euro und Cent",FALSE,NA,NA,NA,"Lobbyismus & Transparenz",NA,NA
+958,"Verlängerung des Bundeswehreinsatzes in Südsudan (UNMISS)",TRUE,NA,NA,NA,"Verteidigung",NA,NA
+957,"Verlängerung des Darfur-Einsatzes (UNAMID)",TRUE,NA,NA,NA,"Verteidigung",NA,NA
+933,"Bankenhilfe für Spanien (EFSF)",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen","Europapolitik und Europäische Union","Finanzen"
+931,"Neuausrichtung der Pflegeversicherung",TRUE,NA,NA,NA,"Senioren","Gesundheit",NA
+930,"Fortsetzung des Libanon-Einsatzes",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen",NA,NA
+929,"Recht auf Eheschließung für gleichgeschlechtliche Paare",FALSE,NA,NA,NA,"Gesellschaftspolitik, soziale Gruppen","Recht",NA
+928,"Dauerhafter Euro-Rettungsschirm ESM",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen","Europapolitik und Europäische Union","Finanzen"
+927,"Fiskalpakt",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen","Europapolitik und Europäische Union","Finanzen"
+925,"Nachtragshaushalt 2012",TRUE,NA,NA,NA,"Haushalt",NA,NA
+919,"Verlängerung Kosovo-Einsatz (KFOR)",TRUE,NA,NA,NA,"Entwicklungspolitik",NA,NA
+918,"Verbesserter Rechtsschutz in Wahlsachen (Art. 93 GG)",TRUE,NA,NA,NA,"Politisches Leben, Parteien","Recht",NA
+917,"Verlängerung des Bundeswehreinsatzes gegen Piraterie (Atalanta)",TRUE,NA,NA,NA,"Verteidigung",NA,NA
+915,"Kürzungen der Solarförderungen",TRUE,NA,NA,NA,"Energie","Raumordnung, Bau- und Wohnungswesen","Umwelt"
+914,"Abbau der kalten Progression",TRUE,NA,NA,NA,"Öffentliche Finanzen, Steuern und Abgaben",NA,NA
+913,"Pläne für ein Betreuungsgeld aufgeben",FALSE,NA,NA,NA,"Bildung und Erziehung","Familie","Soziale Sicherung"
+911,"Zweites Rettungspaket für Griechenland",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen","Europapolitik und Europäische Union","Finanzen"
+910,"Verlängerung Afghanistan-Einsatz (ISAF)",TRUE,NA,NA,NA,"Entwicklungspolitik",NA,NA
+907,"Verlängerung des Bundeswehreinsatzes gegen Piraterie (Atalanta)",TRUE,NA,NA,NA,"Verteidigung",NA,NA
+905,"Verlängerung des Anti-Terror-Einsatzes im Mittelmeer (OAE)",TRUE,NA,NA,NA,"Verteidigung",NA,NA
+903,"Ausweitung des Euro-Rettungsschirms (EFSF)",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen","Europapolitik und Europäische Union","Finanzen"
+890,"Reform des Bundestagswahlrechts",TRUE,NA,NA,NA,"Politisches Leben, Parteien","Recht",NA
+889,"Verlängerung des Bundeswehreinsatzes in Südsudan (UNMISS)",TRUE,NA,NA,NA,"Entwicklungspolitik",NA,NA
+887,"Euro-Stabilisierungsfonds EFSF",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen","Europapolitik und Europäische Union","Finanzen"
+884,"Abschiebestopp für syrische Flüchtlinge",FALSE,NA,NA,NA,"Migration und Aufenthaltsrecht","Humanitäre Hilfe","Menschenrechte"
+883,"Deutsche Beteiligung an UN-Aufbaumission in Südsudan",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen","Entwicklungspolitik",NA
+882,"Verlängerung des Darfur-Einsatzes",TRUE,NA,NA,NA,"Verteidigung",NA,NA
+881,"Unterirdische Speicherung von CO2",TRUE,NA,NA,NA,"Energie","Umwelt","Wirtschaft"
+880,"Keine Panzer an Saudi-Arabien verkaufen",FALSE,NA,NA,NA,"Außenpolitik und internationale Beziehungen",NA,NA
+879,"Eingeschränkte Zulassung der Präimplantationsdiagnostik",TRUE,NA,NA,NA,"Familie","Gesundheit",NA
+878,"Atomausstieg bis 2022",TRUE,NA,NA,NA,"Energie","Umwelt","Naturschutz"
+872,"Verlängerung des Libanon-Einsatzes (UNIFIL)",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen",NA,NA
+871,"AWACS-Einsatz in Afghanistan",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen",NA,NA
+870,"Verlängerung Kosovo-Einsatz (KFOR)",TRUE,NA,NA,NA,"Entwicklungspolitik",NA,NA
+869,"Sofortige Abschaltung von Alt-AKW",FALSE,NA,NA,NA,"Energie","Umwelt",NA
+867,"Vorübergehende Aussetzung von AKW-Laufzeiten (Moratorium)",TRUE,NA,NA,NA,"Energie","Umwelt",NA
+866,"Unverzügliche Abschaltung aller deutschen AKW",FALSE,NA,NA,NA,"Energie","Umwelt",NA
+854,"Vorläufiger Bau- und Vergabestopp bei Stuttgart 21",FALSE,NA,NA,NA,"Raumordnung, Bau- und Wohnungswesen",NA,NA
+853,"Anpassung und Veränderung von Hartz IV",TRUE,NA,NA,NA,"Arbeit und Beschäftigung","Gesellschaftspolitik, soziale Gruppen","Familie"
+852,"Verlängerung des Anti-Terror-Einsatzes im Mittelmeer (OAE)",TRUE,NA,NA,NA,"Verteidigung",NA,NA
+851,"Verlängerung Bosnien-Einsatz (ALTHEA)",TRUE,NA,NA,NA,"Entwicklungspolitik",NA,NA
+848,"Haushalt 2011",TRUE,NA,NA,NA,"Haushalt",NA,NA
+846,"Kampf gegen Piraten (ATALANTA)",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen",NA,NA
+843,"Gesundheitsreform",TRUE,NA,NA,NA,"Gesundheit",NA,NA
+842,"Einführung bundesweiter Volksentscheide",FALSE,NA,NA,NA,"Politisches Leben, Parteien",NA,NA
+841,"Neuordnung am Arzneimittelmarkt",TRUE,NA,NA,NA,"Gesundheit","Wirtschaft",NA
+839,"Mindestsicherung statt Hartz IV",FALSE,NA,NA,NA,"Arbeit und Beschäftigung","Soziale Sicherung",NA
+838,"Beibehaltung der Steuerfreiheit bei Feiertags- und Nachtarbeit",FALSE,NA,NA,NA,"Arbeit und Beschäftigung",NA,NA
+836,"Abschaffung der reduzierten Mehrwertsteuer für Hotels",FALSE,NA,NA,NA,"Öffentliche Finanzen, Steuern und Abgaben","Tourismus",NA
+834,"Bundeshaushalt 2010",TRUE,NA,NA,NA,"Haushalt",NA,NA
+832,"Sparpaket (Haushaltsbegleitgesetz)",TRUE,NA,NA,NA,"Haushalt",NA,NA
+831,"Brennelementesteuer",TRUE,NA,NA,NA,"Energie","Haushalt","Umwelt"
+830,"Abschöpfung von Zusatzgewinnen aus AKW-Laufzeitverlängerung",TRUE,NA,NA,NA,"Energie","Umwelt",NA
+829,"Verlängerung von AKW-Laufzeiten",TRUE,NA,NA,NA,"Energie","Umwelt","Wirtschaft"
+811,"Bundeswehr ohne Wehrpflicht",FALSE,NA,NA,NA,"Innere Angelegenheiten","Verteidigung",NA
+809,"Verlängerung des Sudan-Einsatzes (UNMIS)",TRUE,NA,NA,NA,"Entwicklungspolitik",NA,NA
+808,"Reduzierung der Wehrpflicht",TRUE,NA,NA,NA,"Gesellschaftspolitik, soziale Gruppen","Recht","Verteidigung"
+807,"Verlängerung des Darfur-Einsatzes (UNAMID)",TRUE,NA,NA,NA,"Entwicklungspolitik",NA,NA
+806,"Verlängerung des Libanon-Einsatzes (UNFIL)",TRUE,NA,NA,NA,"Entwicklungspolitik",NA,NA
+805,"Reform der Jobcenter",TRUE,NA,NA,NA,"Recht","Staat und Verwaltung",NA
+803,"Austritt aus der Kernfusion (ITER)",FALSE,NA,NA,NA,"Energie","Verbraucherschutz","Reaktorsicherheit"
+794,"Verlängerung Kosovo-Einsatz (KFOR)",TRUE,NA,NA,NA,"Entwicklungspolitik",NA,NA
+787,"Euro-Rettungsschirm",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen","Europapolitik und Europäische Union","Finanzen"
+777,"Schnellere Absenkung der Einspeisevergütung im EEG",TRUE,NA,NA,NA,"Energie","Umwelt",NA
+776,"Notkredit für Griechenland",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen","Europapolitik und Europäische Union","Finanzen"
+766,"Verlängerung Afghanistaneinsatz (ISAF)",TRUE,NA,NA,NA,"Entwicklungspolitik",NA,NA
+761,"Verzicht auf Mehrwertsteuersenkung für das Hotelgewerbe",FALSE,NA,NA,NA,"Öffentliche Finanzen, Steuern und Abgaben","Wirtschaft",NA
+760,"Bundeswehreinsatz in Bosnien Herzegowina",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen",NA,NA
+759,"Kampf gegen Piraten (ATALANTA)",TRUE,NA,NA,NA,"Außenpolitik und internationale Beziehungen",NA,NA
+735,"Schwarzarbeiterbekämpfungsgesetz",TRUE,NA,NA,NA,"Arbeit und Beschäftigung","Recht","Wirtschaft"
+734,"Verlängerung Libanon-Einsatz (UNFIL)",TRUE,NA,NA,NA,"Entwicklungspolitik",NA,NA
+733,"Verlängerung des Anti-Terror-Kampfes (OEF)",TRUE,NA,NA,NA,"Verteidigung",NA,NA
+732,"Wachstumsbeschleunigungsgesetz",TRUE,NA,NA,NA,"Gesellschaftspolitik, soziale Gruppen","Öffentliche Finanzen, Steuern und Abgaben",NA
+731,"Verlängerung Afghanistaneinsatz (ISAF)",TRUE,NA,NA,NA,"Entwicklungspolitik",NA,NA
+712,"Verlängerung Afghanistaneinsatz (ISAF)",TRUE,NA,NA,NA,"Entwicklungspolitik",NA,NA

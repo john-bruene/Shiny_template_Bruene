@@ -19,30 +19,36 @@ server <- function(input, output, session) {
   
   # adjust the template from here on
   # loading the data
-  politician_data2125 <- read.csv("all_politicians_bt_21_25_new.csv")
-  politician_data1721 <- read.csv("all_politicians_bt_17_21_new.csv")
-  politician_data1317 <- read.csv("all_politicians_bt_13_17_new.csv")
-  politician_data0913 <- read.csv("all_politicians_bt_09_13_new.csv")
-  votes_2125_df<- read_csv("all_votes_data_2125_df_new.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
-  votes_1721_df<- read_csv("all_votes_data_1721_df_new.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
-  votes_1317_df<- read_csv("all_votes_data_1317_df_new.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
-  votes_0913_df<- read_csv("all_votes_data_0913_df_new.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
-  polls_2125_df<- read.csv("all__poll_2125_df_new.csv")
-  polls_1721_df<- read.csv("all__poll_1721_df_new.csv")
-  polls_1317_df<- read.csv("all__poll_1317_df_new.csv")
-  polls_0913_df<- read.csv("all__poll_0913_df_new.csv")
+  politician_data2125 <- read.csv("data/all_politicians_bt_21_25_new.csv")
+  politician_data1721 <- read.csv("data/all_politicians_bt_17_21_new.csv")
+  politician_data1317 <- read.csv("data/all_politicians_bt_13_17_new.csv")
+  politician_data0913 <- read.csv("data/all_politicians_bt_09_13_new.csv")
+  votes_2125_df<- read_csv("data/all_votes_data_2125_df_new.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
+  votes_1721_df<- read_csv("data/all_votes_data_1721_df_new.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
+  votes_1317_df<- read_csv("data/all_votes_data_1317_df_new.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
+  votes_0913_df<- read_csv("data/all_votes_data_0913_df_new.csv", col_types = cols(vote = col_factor(levels = c("yes", "no", "no_show", "abstain")), mandate.id = col_integer(), reason_no_show = col_character(),  reason_no_show_other = col_character(), poll.id = col_integer(), fraction.id = col_integer()))
+  polls_2125_df<- read.csv("data/all__poll_2125_df_new.csv")
+  polls_1721_df<- read.csv("data/all__poll_1721_df_new.csv")
+  polls_1317_df<- read.csv("data/all__poll_1317_df_new.csv")
+  polls_0913_df<- read.csv("data/all__poll_0913_df_new.csv")
   
   votes_2125_df <- left_join(votes_2125_df, polls_2125_df, by = "poll.id")
   votes_1721_df <- left_join(votes_1721_df, polls_1721_df, by = "poll.id")
   votes_1317_df <- left_join(votes_1317_df, polls_1317_df, by = "poll.id")
   votes_0913_df <- left_join(votes_0913_df, polls_0913_df, by = "poll.id")
   
-  wahlkreise21 <- st_read("btw21_geometrie_wahlkreise_shp/Geometrie_Wahlkreise_20DBT.shp")
-  wahlkreise17 <- st_read("btw17_geometrie_wahlkreise_geo_shp/Geometrie_Wahlkreise_19DBT_geo.shp")
-  wahlkreise13 <- st_read("btw13_geometrie_wahlkreise_etrs89_geo_shp/Geometrie_Wahlkreise_18DBT.shp")
-  wahlkreise09 <- st_read("btw09_geometrie_wahlkreise_shp/Geometrie_Wahlkreise_17DBT.shp")
+  wahlkreise21 <- st_read("wahlkreise/btw21_geometrie_wahlkreise_shp/Geometrie_Wahlkreise_20DBT.shp")
+  wahlkreise17 <- st_read("wahlkreise/btw17_geometrie_wahlkreise_geo_shp/Geometrie_Wahlkreise_19DBT_geo.shp")
+  wahlkreise13 <- st_read("wahlkreise/btw13_geometrie_wahlkreise_etrs89_geo_shp/Geometrie_Wahlkreise_18DBT.shp")
+  wahlkreise09 <- st_read("wahlkreise/btw09_geometrie_wahlkreise_shp/Geometrie_Wahlkreise_17DBT.shp")
   
   current_year <- format(Sys.Date(), "%Y")
+  
+  # change for politician_data1721, politician_data1317 and politician_data0913 all $party.label from "BSW" to "DIE LINKE"
+  
+  politician_data1721$party.label[which(politician_data1721$party.label == "BSW")] <- "DIE LINKE"
+  politician_data1317$party.label[which(politician_data1317$party.label == "BSW")] <- "DIE LINKE"
+  politician_data0913$party.label[which(politician_data0913$party.label == "BSW")] <- "DIE LINKE"
 
   
 
@@ -1261,13 +1267,13 @@ server <- function(input, output, session) {
   nom_react <- reactive({
     
     if (input$data == 1) {
-      load("wnom_results_2125.RData")
+      load("data/wnom_results_2125.RData")
     } else if (input$data == 2) {
-      load("wnom_results_1721.RData")
+      load("data/wnom_results_1721.RData")
     } else if (input$data == 3) {
-      load("wnom_results_1317.RData")
+      load("data/wnom_results_1317.RData")
     } else if (input$data == 4) {
-      load("wnom_results_0913.RData")
+      load("data/wnom_results_0913.RData")
     } 
     return(wnom_results)
   })
