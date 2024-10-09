@@ -5,7 +5,7 @@ account: john-f-bruene
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 11093081
-bundleId: 9031612
+bundleId: 9191945
 url: https://john-f-bruene.shinyapps.io/Abgeordnetenanalyse/
 version: 1
 asMultiple: FALSE
