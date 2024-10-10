@@ -1,14 +1,18 @@
 # Call the helpers and text files
 source("helpers.R")
+source("infoTexts/legislatureInfoText.R")
+source("infoTexts/analysisInfoText.R")
+source("infoTexts/votingInfoText.R")
+source("infoTexts/introText.R")
+source("infoTexts/politicalSystemText.R")
+
 source("content/analysisTabContent.R") 
 source("content/votingInfoTabContent.R")
 source("content/legislatureInfoTabContent.R")
 source("content/sidebarContent.R")
-load("infoTexts/introText.RData")
-load("infoTexts/legislatureInfoText.RData")
-load("infoTexts/votingInfoText.RData")
-load("infoTexts/analysisInfoText.RData")
-load("infoTexts/politicalSystemText.RData")
+
+# load all .RData files in /infoTexts
+
 
 # Define UI for random distribution app ----
 ui <- fluidPage(

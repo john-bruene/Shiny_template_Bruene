@@ -4,4 +4,3 @@ votingInfoText <- '
 <p>Dieser Tab widmet sich einer konkret ausgewählten Abstimmung im Bundestag. Diese kann links ausgewählt und mit dem Suchfeld verfeinert werden.</p>
 <p>Das <strong>Abstimmungsverhalten</strong> kann hier genauer betrachtet werden.</p>
 '
-save(votingInfoText, file = "votingInfoText.RData")

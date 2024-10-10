@@ -13,5 +13,3 @@ introText <- HTML("
 <p>Aktuelles Feedback und dessen Umsetzungsstand ist <a href='https://docs.google.com/spreadsheets/d/1jy6AsNn5nPMMuD6fSeVRstj05TJU3U946OfEOJS3PBk/edit?usp=sharing' target='_blank'>hier</a> einsehbar. </p>
 <p>Für weitere Informationen, Fragen und Feedback freue ich mich über eine E-Mail: <a href='mailto:j.bruene@stud.uni-goettingen.de'>j.bruene@stud.uni-goettingen.de</a></p>
 ")
-
-save(introText, file = "introText.RData")

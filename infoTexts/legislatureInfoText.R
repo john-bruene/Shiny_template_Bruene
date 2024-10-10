@@ -45,5 +45,4 @@ legislatureInfo <- list(
 )
 
 
-save(legislatureInfoText, file = "legislatureInfoText.RData")
-save(legislatureInfo, file = "legislatureInfo.RData")
+
